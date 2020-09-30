@@ -1,0 +1,19 @@
+{
+    "name": "micropy-test",
+    "stubs": {
+        "esp8266-micropython-1.11.0": "1.2.0"
+    },
+    "dev-packages": {
+        "micropy-cli": "*"
+    },
+    "packages": {
+        "picoweb": "*",
+        "urequest": "*",
+        "typing": "*",
+        "micropython-typing": "*"
+    },
+    "config": {
+        "vscode": true,
+        "pylint": true
+    }
+}

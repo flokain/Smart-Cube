@@ -1,0 +1,4 @@
+micropython-typing
+picoweb
+typing
+urequest
