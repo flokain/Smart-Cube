@@ -58,7 +58,40 @@ protected:
         String preparedHTTPRequest;
         int makeRequest()
         {
+            Serial.println("Sending request");
+            Serial.println(this->_host);
+            Serial.println(this->_port);
+            if (!_client->connect("toggl.com", 443))
+            {
+                Serial.println("connection failed");
+                return -1;
+            }
             _client->print(preparedHTTPRequest);
+            Serial.println("request sent");
+            while (_client->connected())
+            {
+                String line = _client->readStringUntil('\n');
+                if (line == "\r")
+                {
+                    Serial.println("headers received");
+                    break;
+                }
+            }
+            String line = _client->readStringUntil('\n');
+            if (line.startsWith("{\"state\":\"success\""))
+            {
+                Serial.println("esp8266/Arduino CI successfull!");
+            }
+            else
+            {
+                Serial.println("esp8266/Arduino CI has failed");
+            }
+            Serial.println("reply was:");
+            Serial.println("==========");
+            Serial.println(line);
+            Serial.println("==========");
+            Serial.println("closing connection");
+
             return returnError(handleHeaderResponse());
         };
     };

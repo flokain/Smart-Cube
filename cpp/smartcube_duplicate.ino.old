@@ -55,13 +55,10 @@ void setup()
 {
   Serial.begin(115200);
   // test handler
-  Parameters par = Parameters({{"face", "1"}});
-
-  Serial.println("[setup] handler->setRestCall");
+  Parameters par = Parameters({{"face", "3"}});
   bool insecure = true;
-  //handler->setRestCall(par, host, fingerprint, http_request, insecure);
-  Serial.println("[setup] handler->execute(par)");
-  //handler->execute(par);
+  // handler->setRestCall(par, host, fingerprint, http_request, insecure);
+  // handler->execute(par);
 
   // setup autconnect server
   httpUpdate.setup(&httpServer, "USERNAME", "PASSWORD"); // Step #9.a
