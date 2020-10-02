@@ -1,6 +1,6 @@
 
 # Smartcube
-Smartcube aims to be the IOT Cube anyone can build, configure and afford.
+Smartcube aims to be the IOT Cube anyone can **a**fford, **b**uild and **c**onfigure.
 
 Smartcube is a physical die, which houses electronics to detect when the die is turned which side is facing up and trigger events over the internet or your network else via its wifi connection.
 
