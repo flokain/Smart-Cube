@@ -5,19 +5,19 @@
         ".micropy/BradenM-micropy-stubs-c89b5ef/frozen",
         ".micropy/BradenM-micropy-stubs-e1b8ce6/frozen",
         ".micropy/BradenM-micropy-stubs-c89b5ef/stubs",
-        ".micropy/micropy-test"
+        ".micropy/smartcube"
     ],
     "python.autoComplete.typeshedPaths": [
         ".micropy/BradenM-micropy-stubs-c89b5ef/frozen",
         ".micropy/BradenM-micropy-stubs-e1b8ce6/frozen",
         ".micropy/BradenM-micropy-stubs-c89b5ef/stubs",
-        ".micropy/micropy-test"
+        ".micropy/smartcube"
     ],
     "python.analysis.typeshedPaths": [
         ".micropy/BradenM-micropy-stubs-c89b5ef/frozen",
         ".micropy/BradenM-micropy-stubs-e1b8ce6/frozen",
         ".micropy/BradenM-micropy-stubs-c89b5ef/stubs",
-        ".micropy/micropy-test"
+        ".micropy/smartcube"
     ],
     "python.linting.pylintEnabled": true,
     "python.languageServer": "Microsoft"

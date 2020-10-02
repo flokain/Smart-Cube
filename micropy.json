@@ -1,5 +1,5 @@
 {
-    "name": "micropy-test",
+    "name": "smartcube",
     "stubs": {
         "esp8266-micropython-1.11.0": "1.2.0"
     },
@@ -7,10 +7,8 @@
         "micropy-cli": "*"
     },
     "packages": {
-        "picoweb": "*",
-        "urequest": "*",
-        "typing": "*",
-        "micropython-typing": "*"
+        "unittest": "*",
+        "micropython-wifimanager": "*"
     },
     "config": {
         "vscode": true,

@@ -1,6 +1,6 @@
 [MASTER]
 # Loaded Stubs:  esp8266-micropython-1.11.0 
-init-hook='import sys;sys.path.insert(1, ".micropy/BradenM-micropy-stubs-c89b5ef/frozen");sys.path.insert(1, ".micropy/BradenM-micropy-stubs-e1b8ce6/frozen");sys.path.insert(1, ".micropy/BradenM-micropy-stubs-c89b5ef/stubs");sys.path.insert(1, ".micropy/micropy-test");'
+init-hook='import sys;sys.path.insert(1, ".micropy/BradenM-micropy-stubs-c89b5ef/frozen");sys.path.insert(1, ".micropy/BradenM-micropy-stubs-e1b8ce6/frozen");sys.path.insert(1, ".micropy/BradenM-micropy-stubs-c89b5ef/stubs");sys.path.insert(1, ".micropy/smartcube");'
 
 [MESSAGES CONTROL]
 # Only show warnings with the listed confidence levels. Leave empty to show

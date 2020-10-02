@@ -5,6 +5,7 @@ http://docs.micropython.org/en/latest/esp8266/tutorial/intro.html#
 https://github.com/belyalov/tinyweb
 https://github.com/mcauser/awesome-micropython (list o fmicropython libraries)
 
+https://www.codeply.com/p?starter=Bootstrap%204 (bootstrap online editor)
 # reset board from comandline
 ```
 esptool.py --port /dev/ttyUSB0 erase_flash

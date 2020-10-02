@@ -1,0 +1,23 @@
+
+from typing import Any, Dict, Optional, Sequence, Tuple, Union
+Node = Any
+def fake_log(msg: Any, *args) -> None: ...
+class WifiManager:
+    def start_managing(cls: Any) -> None: ...
+    def wlan(cls: Any) -> Any: ...
+        #   0: return network.WLAN(network.STA_IF)
+        # ? 0: return network.WLAN(network.STA_IF)
+    def accesspoint(cls: Any) -> Any: ...
+        #   0: return network.WLAN(network.AP_IF)
+        # ? 0: return network.WLAN(network.AP_IF)
+    def wants_accesspoint(cls: Any) -> Union[Any, bool]: ...
+        #   0: return static_policies[cls._ap_start_policy]
+        # ? 0: return static_policies[cls._ap_start_policy]
+        #   1: return cls.wlan().status()!=network.STAT_GOT_IP
+        #   1: return bool
+    def setup_network(cls: Any) -> Optional[Any]: ...
+        #   0: return
+        #   0: return 
+        #   1: return cls.wlan().isconnected()
+        # ? 1: return cls.wlan().isconnected()
+    def connect_to(cls: Any, **kwargs) -> None: ...
