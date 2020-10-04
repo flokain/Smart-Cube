@@ -5,7 +5,7 @@ servers:
       variables:
         ip: 
           default: 192.168.0.156
-          description: ip or url of cube device. make sure to 
+          description: ip or url of cube device. make sure to
         protocol:
           description: select secure https or unsecure http connection
           enum:
