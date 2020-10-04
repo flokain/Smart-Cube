@@ -2,10 +2,10 @@
 # Smartcube
 Smartcube aims to be the IOT Cube anyone can **a**fford, **b**uild and **c**onfigure.
 
-Smartcube is a physical die, which houses electronics to detect when the die is turned which side is facing up and trigger events over the internet or your network else via its wifi connection.
+Smartcube is a physical die, which houses electronics to detect when the die is tilted and which side is facing up. It then triggers events over the internet via its wifi connection.
 
 At the moment smartcube can be configured to
-- track time you work on your projects (Toogl)
+- track the time you work on your projects (Toogl)
 - trigger any generic webhooks
 
 # Project Goals
