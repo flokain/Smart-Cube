@@ -1,7 +1,8 @@
 openapi: 3.0.0
 info:
   title: Smartcube API
-  description: This APIis used to read and configure webhooks to be triggered by the
+  description:
+    This APIis used to read and configure webhooks to be triggered by the
     sides of the cube
   contact:
     email: flokain11@gmail.com
@@ -10,32 +11,30 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   version: v1
 servers:
-- url: '{protocol}://{ip}/v1'
-  description: configure url to point to smartcube
-  variables:
-    ip:
-      description: ip or url of cube device. make sure to
-      default: 192.168.0.156
-    protocol:
-      description: select secure https or unsecure http connection
-      default: http
-      enum:
-      - http
-      - https
-- url: https://virtserver.swaggerhub.com/flokain/smartcube/1.0.0
-  description: mocking server that allways gives you a sampe response
+  - url: "/api/v1"
+    description: configure url to point to smartcube
+    variables:
+      ip:
+        description: ip or url of cube device. make sure to
+        default: 192.168.0.156
+      protocol:
+        description: select secure https or unsecure http connection
+        default: http
+        enum:
+          - http
+          - https
 tags:
-- name: Handler
-  description: configure the webhooks for the cube.
-- name: State
-  description: get the current State of the cube.
-- name: System
-  description: read, configure and reboot the cube hardware.
+  - name: Handler
+    description: configure the webhooks for the cube.
+  - name: State
+    description: get the current State of the cube.
+  - name: System
+    description: read, configure and reboot the cube hardware.
 paths:
   /state/side:
     get:
       tags:
-      - State
+        - State
       summary: get the current CubeState
       operationId: state_side_get
       responses:
@@ -44,7 +43,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CubeState'
+                $ref: "#/components/schemas/CubeState"
         "401":
           description: Unauthorized. please login
         "403":
@@ -53,7 +52,7 @@ paths:
   /state/System:
     get:
       tags:
-      - State
+        - State
       summary: get the current SystemState
       operationId: state_system_get
       responses:
@@ -62,7 +61,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SystemState'
+                $ref: "#/components/schemas/SystemState"
         "401":
           description: Unauthorized. please login
         "403":
@@ -71,24 +70,24 @@ paths:
   /handler/side/{sideId}:
     get:
       tags:
-      - Handler
+        - Handler
       summary: get the current Handler for {sideId}
       operationId: handler_side_side_id_get
       parameters:
-      - name: sideId
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          $ref: '#/components/schemas/sideId'
+        - name: sideId
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            $ref: "#/components/schemas/sideId"
       responses:
         "200":
           description: item found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Handler'
+                $ref: "#/components/schemas/Handler"
         "401":
           description: Unauthorized. please login
         "403":
@@ -98,30 +97,30 @@ paths:
       x-openapi-router-controller: swagger_server.controllers.handler_controller
     post:
       tags:
-      - Handler
+        - Handler
       summary: configures a Handler for side {sideId}
       description: Adds a Handler to a side
       operationId: add_side_handler
       parameters:
-      - name: sideId
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          $ref: '#/components/schemas/sideId'
+        - name: sideId
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            $ref: "#/components/schemas/sideId"
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Handler'
+              $ref: "#/components/schemas/Handler"
       responses:
         "201":
           description: item created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Handler'
+                $ref: "#/components/schemas/Handler"
         "400":
           description: invalid input, object invalid
         "401":
@@ -132,7 +131,7 @@ paths:
   /handler/onchange:
     get:
       tags:
-      - Handler
+        - Handler
       summary: get the current Handler for changes of CubeState
       operationId: handler_onchange_get
       responses:
@@ -141,7 +140,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Handler'
+                $ref: "#/components/schemas/Handler"
         "401":
           description: Unauthorized. please login
         "403":
@@ -151,7 +150,7 @@ paths:
       x-openapi-router-controller: swagger_server.controllers.handler_controller
     post:
       tags:
-      - Handler
+        - Handler
       summary: configures a Handler for changes of CubeState
       description: Add a Handler to whenever the CubeState changes i.e. it is tilted
       operationId: handler_onchange_post
@@ -159,14 +158,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Handler'
+              $ref: "#/components/schemas/Handler"
       responses:
         "201":
           description: item created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Handler'
+                $ref: "#/components/schemas/Handler"
         "400":
           description: invalid input, object invalid
         "401":
@@ -177,7 +176,7 @@ paths:
   /System/config:
     get:
       tags:
-      - System
+        - System
       summary: get the configuration
       description: returns current conffiguration
       operationId: system_config_get
@@ -187,7 +186,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SystemConfig'
+                $ref: "#/components/schemas/SystemConfig"
         "401":
           description: Unauthorized. please login
         "403":
@@ -195,7 +194,7 @@ paths:
       x-openapi-router-controller: swagger_server.controllers.system_controller
     post:
       tags:
-      - System
+        - System
       summary: set the configuration
       description: returns current configuration if accepted
       operationId: system_config_post
@@ -205,7 +204,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SystemConfig'
+                $ref: "#/components/schemas/SystemConfig"
         "401":
           description: Unauthorized. please login
         "403":
@@ -214,7 +213,7 @@ paths:
   /System/reboot:
     post:
       tags:
-      - System
+        - System
       summary: reboots the System
       description: returns current configuration if accepted
       operationId: system_reboot_post
@@ -224,7 +223,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SystemConfig'
+                $ref: "#/components/schemas/SystemConfig"
         "401":
           description: Unauthorized. Please login
         "403":
@@ -245,12 +244,13 @@ components:
       type: object
       properties:
         sideId:
-          $ref: '#/components/schemas/sideId'
+          $ref: "#/components/schemas/sideId"
         lastChange:
           type: string
           format: date-time
           example: 2017-07-21T17:32:28Z
-      description: provides the current side up on the cube as well as time since
+      description:
+        provides the current side up on the cube as well as time since
         when it is in that State.
       example:
         sideId: 1
@@ -260,7 +260,8 @@ components:
       properties:
         timeRemaining:
           type: integer
-          description: estimated remaining time of operation in seconds. -1 means
+          description:
+            estimated remaining time of operation in seconds. -1 means
             infintely
           format: int64
           example: 60
@@ -281,7 +282,8 @@ components:
           example: GLUBBE-Network
         changeDelay:
           type: integer
-          description: when the cube is tilted, sensors indicate many CubeState changes.
+          description:
+            when the cube is tilted, sensors indicate many CubeState changes.
             to mittigate the detection of those unwanted events after the cube is
             tilted it must stand still for milliseconds in changeDelay
           example: 3000
@@ -292,16 +294,17 @@ components:
         changeDelay: 3000
     Handler:
       required:
-      - request
+        - request
       type: object
       properties:
         request:
-          $ref: '#/components/schemas/httpRequest'
+          $ref: "#/components/schemas/httpRequest"
         expectedResponse:
           type: integer
           example: 201
           default: 200
-      description: configures a httpRequest and the expected response from that Request
+      description:
+        configures a httpRequest and the expected response from that Request
         for the Handler to work as expected.
       example:
         request:
@@ -314,7 +317,7 @@ components:
         expectedResponse: 201
     httpRequest:
       required:
-      - uri
+        - uri
       type: object
       properties:
         uri:
@@ -326,13 +329,13 @@ components:
           example: POST
           default: GET
           enum:
-          - GET
-          - POST
-          - PUT
-          - DELETE
-          - HEAD
-          - PATCH
-          - OPTIONS
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - HEAD
+            - PATCH
+            - OPTIONS
         headers:
           type: object
           additionalProperties:
@@ -350,4 +353,3 @@ components:
         method: POST
         payload: sample body as string
         uri: http://my-remote-service.com/webhook-to-trigger
-
