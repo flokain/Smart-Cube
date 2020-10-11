@@ -1,0 +1,302 @@
+---
+openapi: "3.0.0"
+info:
+  title: "Smartcube API"
+  description: "This APIis used to read and configure webhooks to be triggered by\
+    \ the sides of the cube"
+  contact:
+    email: "flokain11@gmail.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+  version: "v1"
+servers:
+- url: "https://virtserver.swaggerhub.com/flokain/smartcube/1.0.0"
+  description: "SwaggerHub API Auto Mocking"
+tags:
+- name: "handler"
+  description: "configure the webhooks for the cube."
+- name: "state"
+  description: "get the current state of the cube."
+- name: "system"
+  description: "read, configure and reboot the cube hardware."
+paths:
+  /state/side:
+    get:
+      tags:
+      - "state"
+      summary: "get the current cubeState"
+      responses:
+        "200":
+          description: "state found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/cubeState"
+        "401":
+          description: "Unauthorized. please login"
+        "403":
+          description: "Forbidden. Permission \"state\" is required."
+  /state/system:
+    get:
+      tags:
+      - "state"
+      summary: "get the current systemState"
+      responses:
+        "200":
+          description: "state found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/systemState"
+        "401":
+          description: "Unauthorized. please login"
+        "403":
+          description: "Forbidden. Permission \"state\" is required."
+  /handler/side/{sideId}:
+    get:
+      tags:
+      - "handler"
+      summary: "get the current Handler for {sideId}"
+      parameters:
+      - name: "sideId"
+        in: "path"
+        required: true
+        style: "simple"
+        explode: false
+        schema:
+          maximum: 6
+          minimum: 1
+          type: "integer"
+          format: "int64"
+      responses:
+        "200":
+          description: "item found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Handler"
+        "404":
+          description: "Handler for side not configured"
+        "401":
+          description: "Unauthorized. please login"
+        "403":
+          description: "Forbidden. Permission Handler is required."
+    post:
+      tags:
+      - "handler"
+      summary: "configures a Handler for side {sideId}"
+      description: "Adds a Handler to a side"
+      operationId: "addSideHandler"
+      parameters:
+      - name: "sideId"
+        in: "path"
+        required: true
+        style: "simple"
+        explode: false
+        schema:
+          maximum: 6
+          minimum: 1
+          type: "integer"
+          format: "int64"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Handler"
+      responses:
+        "201":
+          description: "item created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Handler"
+        "400":
+          description: "invalid input, object invalid"
+        "401":
+          description: "Unauthorized. please login"
+        "403":
+          description: "Forbidden. Permission \"Handler\" is required."
+  /handler/onchange:
+    get:
+      tags:
+      - "handler"
+      summary: "get the current Handler for changes of cubeState"
+      responses:
+        "200":
+          description: "item found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Handler"
+        "404":
+          description: "not found"
+        "401":
+          description: "Unauthorized. please login"
+        "403":
+          description: "Forbidden. Permission \"Handler\" is required."
+    post:
+      tags:
+      - "handler"
+      summary: "configures a Handler for changes of cubeState"
+      description: "Add a Handler to whenever the cubeState changes i.e. it is tilted"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Handler"
+      responses:
+        "201":
+          description: "item created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Handler"
+        "400":
+          description: "invalid input, object invalid"
+        "401":
+          description: "Unauthorized. please login"
+        "403":
+          description: "Forbidden. Permission \"Handler\" is required."
+  /system/config:
+    get:
+      tags:
+      - "system"
+      summary: "get the configuration"
+      description: "returns current conffiguration"
+      responses:
+        "200":
+          description: "ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/systemConfig"
+        "401":
+          description: "Unauthorized. please login"
+        "403":
+          description: "Forbidden. Permission system is required."
+    post:
+      tags:
+      - "system"
+      summary: "set the configuration"
+      description: "returns current configuration if accepted"
+      responses:
+        "201":
+          description: "item created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/systemConfig"
+        "401":
+          description: "Unauthorized. please login"
+        "403":
+          description: "Forbidden. Permission system is required."
+  /system/reboot:
+    post:
+      tags:
+      - "system"
+      summary: "reboots the system"
+      description: "returns current configuration if accepted"
+      responses:
+        "204":
+          description: "device reboots now"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/systemConfig"
+        "401":
+          description: "Unauthorized. Please login"
+        "403":
+          description: "Forbidden. Permission system is required."
+        "500":
+          description: "unable to reboot."
+components:
+  schemas:
+    cubeState:
+      type: "object"
+      properties:
+        sideId:
+          maximum: 6
+          minimum: 1
+          type: "integer"
+          format: "int8"
+          example: 1
+        lastChange:
+          type: "string"
+          format: "date-time"
+          example: "2017-07-21T17:32:28Z"
+      description: "provides the current side up on the cube as well as time since\
+        \ when it is in that state."
+    systemState:
+      type: "object"
+      properties:
+        timeRemaining:
+          type: "integer"
+          description: "estimated remaining time of operation in seconds. -1 means\
+            \ infintely"
+          format: "int64"
+          example: 60
+        timePassed:
+          type: "integer"
+          description: "time that has passed since device was switched on"
+          format: "int64"
+          example: 10000
+      description: "provides all relevant and irrelevant meta data about the hardware"
+    systemConfig:
+      properties:
+        wifiSSID:
+          type: "string"
+          description: "the SSID of the connected Wifi"
+          example: "GLUBBE-Network"
+        changeDelay:
+          type: "integer"
+          description: "when the cube is tilted, sensors indicate many cubeState changes.\
+            \ to mittigate the detection of those unwanted events after the cube is\
+            \ tilted it must stand still for milliseconds in changeDelay"
+          example: 3000
+          default: 3000
+      description: "provides all relevant and irrelevant meta data about the hardware"
+    Handler:
+      required:
+      - "request"
+      type: "object"
+      properties:
+        request:
+          $ref: "#/components/schemas/httpRequest"
+        expectedResponse:
+          type: "integer"
+          example: 201
+          default: 200
+      description: "configures a httpRequest and the expected response from that Request\
+        \ for the Handler to work as expected."
+    httpRequest:
+      required:
+      - "uri"
+      type: "object"
+      properties:
+        uri:
+          type: "string"
+          format: "uri"
+          example: "http://my-remote-service.com/webhook-to-trigger"
+        method:
+          type: "string"
+          example: "POST"
+          enum:
+          - "GET"
+          - "POST"
+          - "PUT"
+          - "DELETE"
+          - "HEAD"
+          - "PATCH"
+          - "OPTIONS"
+          default: "GET"
+        headers:
+          type: "object"
+          additionalProperties:
+            type: "string"
+          example:
+            Authorization: "Basic NzQwYzefIzZjhjYTEwMadadasd"
+            accept: "application/json"
+        payload:
+          type: "string"
+          example: "sample body as string"
