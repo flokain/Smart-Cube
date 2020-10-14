@@ -1,0 +1,11 @@
+# Project information
+site_name: Smartcube Documentation
+site_url: https://flokain.github.io/arduino_smart_cube/
+site_author: Martin Donath
+theme:
+  name: material
+
+# Repository
+repo_name: https://github.com/flokain/arduino_smart_cube
+repo_url: https://github.com/flokain/arduino_smart_cube
+edit_uri: "github smartcube"
