@@ -27,7 +27,7 @@ void RestHandler::setRestCall(Parameters index, String url, String SHA1Fingerpri
     // convert sha1 fingerprint to har array for client
     char charBuf[20];
     SHA1Fingerprint.toCharArray(charBuf, 20);
-    //client->setFingerprint(charBuf);
+    client->setFingerprint(charBuf);
     if (insecure)
     {
         client->setInsecure();
@@ -41,16 +41,19 @@ void RestHandler::setRestCall(Parameters index, String url, String SHA1Fingerpri
     Serial.println(restClient.GET());
     Serial.println("[RestHandler][setRestCall] prepare preparedHTTPRequest");
     restClient.preparedHTTPRequest = preparedHTTPRequest;
-    restClient.makeRequest();
+    //restClient.makeRequest();
     Serial.println("[RestHandler][setRestCall] add to restclients list");
     restClients[index] = &restClient;
     Serial.println("[RestHandler][setRestCall] preparation finished");
     Serial.println("[RestHandler] Executing Request");
-    Serial.println(restClients[index]->makeRequest());
 }
 
 void RestHandler::execute(std::map<String, String> index)
 {
     Serial.println("[RestHandler] Executing Request");
+    Serial.print("[RestHandler::execute] face is ");
+    Serial.println(index["face"]);
+    Serial.print("RestHandler::check if index");
+    Serial.println(restClients.count(index));
     Serial.println(restClients[index]->makeRequest());
 }

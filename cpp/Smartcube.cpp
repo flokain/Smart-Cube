@@ -21,16 +21,18 @@ bool Smartcube::detectChange()
     {
         side_up_date_timestamp = millis();
         side_up_temporary = side_up_new;
-        Serial.print("new side_up_temporary: ");
+        Serial.print("[Smartcube] new side_up_temporary: ");
         Serial.println(side_up_temporary);
     }
 
     if (side_up_temporary != side_up && getSideUpTime() > change_delay_ms)
     {
         side_up = side_up_temporary;
-        Serial.print("new side Up: ");
+        Serial.print("[Smartcube] new side Up: ");
         Serial.println(side_up);
+        return true;
     }
+    return false;
 }
 
 uint8_t Smartcube::calc_side_up()
