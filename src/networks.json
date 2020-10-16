@@ -8,7 +8,7 @@
         {
             "ssid": "fkain-ong",
             "password": "EFIMUMqt",
-            "enables_webrepl": true
+            "enables_webrepl": false
         }
     ],
     "access_point": {
@@ -18,7 +18,7 @@
             "hidden": false,
             "password": "P@55W0rd"
         },
-        "enables_webrepl": true,
+        "enables_webrepl": false,
         "start_policy": "fallback"
     }
 }

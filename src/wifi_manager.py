@@ -21,6 +21,7 @@ import os
 # Micropython modules
 import network
 import webrepl
+
 try:
     import uasyncio as asyncio
 except ImportError:
@@ -29,24 +30,28 @@ except ImportError:
 # Micropython libraries (install view uPip)
 try:
     import logging
+
     log = logging.getLogger("wifi_manager")
 except ImportError:
     # Todo: stub logging, this can probably be improved easily, though logging is common to install
     def fake_log(msg, *args):
         print("[?] No logger detected. (log dropped)")
-    log = type("", (), {"debug": fake_log, "info": fake_log, "warning": fake_log, "error": fake_log,
-                            "critical": fake_log})()
+
+    log = type(
+        "", (), {"debug": fake_log, "info": fake_log, "warning": fake_log, "error": fake_log, "critical": fake_log}
+    )()
+
 
 class WifiManager:
     webrepl_triggered = False
     _ap_start_policy = "never"
-    config_file = '/networks.json'
+    config_file = "/networks.json"
 
     # Starts the managing call as a co-op async activity
     @classmethod
     def start_managing(cls):
         loop = asyncio.get_event_loop()
-        loop.create_task(cls.manage()) # Schedule ASAP
+        loop.create_task(cls.manage())  # Schedule ASAP
         # Make sure you loop.run_forever() (we are a guest here)
 
     # Checks the status and configures if needed
@@ -55,8 +60,7 @@ class WifiManager:
         while True:
             status = cls.wlan().status()
             # ESP32 does not currently return
-            if (status != network.STAT_GOT_IP) or \
-            (cls.wlan().ifconfig()[0] == '0.0.0.0'):  # temporary till #3967
+            if (status != network.STAT_GOT_IP) or (cls.wlan().ifconfig()[0] == "0.0.0.0"):  # temporary till #3967
                 log.info("Network not connected: managing")
                 # Ignore connecting status for now.. ESP32 is a bit strange
                 # if status != network.STAT_CONNECTING: <- do not care yet
@@ -85,7 +89,7 @@ class WifiManager:
         try:
             with open(cls.config_file, "r") as f:
                 config = json.loads(f.read())
-                cls.preferred_networks = config['known_networks']
+                cls.preferred_networks = config["known_networks"]
                 cls.ap_config = config["access_point"]
                 if config.get("schema", 0) != 2:
                     log.warning("Did not get expected schema [2] in JSON config.")
@@ -100,35 +104,39 @@ class WifiManager:
 
         # scan what’s available
         available_networks = []
-        for network in cls.wlan().scan():
-            ssid = network[0].decode("utf-8")
-            bssid = network[1]
-            strength = network[3]
-            available_networks.append(dict(ssid=ssid, bssid=bssid, strength=strength))
-        # Sort fields by strongest first in case of multiple SSID access points
-        available_networks.sort(key=lambda station: station["strength"], reverse=True)
+        try:
+            for network in cls.wlan().scan():
+                ssid = network[0].decode("utf-8")
+                bssid = network[1]
+                strength = network[3]
+                available_networks.append(dict(ssid=ssid, bssid=bssid, strength=strength))
+            # Sort fields by strongest first in case of multiple SSID access points
+            available_networks.sort(key=lambda station: station["strength"], reverse=True)
 
-        # Get the ranked list of BSSIDs to connect to, ranked by preference and strength amongst duplicate SSID
-        candidates = []
-        for aPreference in cls.preferred_networks:
-            for aNetwork in available_networks:
-                if aPreference["ssid"] == aNetwork["ssid"]:
-                    connection_data = {
-                        "ssid": aNetwork["ssid"],
-                        "bssid": aNetwork["bssid"],  # NB: One day we might allow collection by exact BSSID
-                        "password": aPreference["password"],
-                        "enables_webrepl": aPreference["enables_webrepl"]}
-                    candidates.append(connection_data)
+            # Get the ranked list of BSSIDs to connect to, ranked by preference and strength amongst duplicate SSID
+            candidates = []
+            for aPreference in cls.preferred_networks:
+                for aNetwork in available_networks:
+                    if aPreference["ssid"] == aNetwork["ssid"]:
+                        connection_data = {
+                            "ssid": aNetwork["ssid"],
+                            "bssid": aNetwork["bssid"],  # NB: One day we might allow collection by exact BSSID
+                            "password": aPreference["password"],
+                            "enables_webrepl": aPreference["enables_webrepl"],
+                        }
+                        candidates.append(connection_data)
 
-        for new_connection in candidates:
-            log.info("Attempting to connect to network {0}...".format(new_connection["ssid"]))
-            # Micropython 1.9.3+ supports BSSID specification so let's use that
-            if cls.connect_to(ssid=new_connection["ssid"], password=new_connection["password"],
-                              bssid=new_connection["bssid"]):
-                log.info("Successfully connected {0}".format(new_connection["ssid"]))
-                cls.webrepl_triggered = new_connection["enables_webrepl"]
-                break  # We are connected so don't try more
-
+            for new_connection in candidates:
+                log.info("Attempting to connect to network {0}...".format(new_connection["ssid"]))
+                # Micropython 1.9.3+ supports BSSID specification so let's use that
+                if cls.connect_to(
+                    ssid=new_connection["ssid"], password=new_connection["password"], bssid=new_connection["bssid"]
+                ):
+                    log.info("Successfully connected {0}".format(new_connection["ssid"]))
+                    cls.webrepl_triggered = new_connection["enables_webrepl"]
+                    break  # We are connected so don't try more
+        except OSError:
+            log.info("No Wifi Network found")
 
         # Check if we are to start the access point
         cls._ap_start_policy = cls.ap_config.get("start_policy", "never")
