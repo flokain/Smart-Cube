@@ -4,6 +4,8 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+debugpy = "*"
+pytest = "*"
 
 [packages]
 connexion = {extras = ["swagger-ui"], version = "*"}
