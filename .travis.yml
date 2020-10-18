@@ -34,11 +34,11 @@ script:
   - export TINYWEB_DIR=misc/tinyweb
   - pycodestyle --ignore=E501,W504 $TINYWEB_DIR/tinyweb/ $TINYWEB_DIR/test/
   # Run unittests
-  - cd $TINYWEB_DIR
-  - ls -la
-  - test/test_server.py
-  # Copy modules to be frozen and compile firmware for esp8266
-  - cd ../..
+  # - cd $TINYWEB_DIR
+  # - ls -la
+  # - test/test_server.py
+  # # Copy modules to be frozen and compile firmware for esp8266
+  # - cd ../..
   - export MPORT=micropython/ports/esp8266/modules
   - cp -r $TINYWEB_DIR/tinyweb $MPORT
   - cp -r micropython-lib/uasyncio/uasyncio $MPORT
