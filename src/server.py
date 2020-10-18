@@ -83,8 +83,6 @@ class GPIO:
         machine.Pin(pin).value(val)
         return {"message": "changed", "value": val}
 
-class Wifi
-
 
 def run():
     # Set all pins to OUT m od
