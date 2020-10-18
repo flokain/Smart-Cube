@@ -48,12 +48,12 @@ script:
   - cp micropython/ports/esp8266/build-GENERIC/firmware-combined.bin ./firmware_esp8266-$TRAVIS_TAG.bin
   # Compile firmware for esp32
   - export MPORT=micropython/ports/esp32/modules
-  - cp -r tinyweb $MPORT
+  - cp -r $TINYWEB_DIR/tinyweb $MPORT
   - cp -r micropython-lib/uasyncio/uasyncio $MPORT
   - cp micropython-lib/logging/logging.py $MPORT
   # Copy examples - to freeze them as well
   - mkdir -p $MPORT/examples
-  - cp examples/*.py $MPORT/examples
+  - cp $TINYWEB_DIR/examples/*.py $MPORT/examples
   # Supported ESP32 SDK
   - docker run -v`pwd`/micropython:/micropython arsenicus/esp-open-sdk:latest_esp32 /bin/bash -c ". /.bashrc && cd /micropython/ports/esp32 && make"
   - cp micropython/ports/esp32/build-GENERIC/firmware.bin ./firmware_esp32-$TRAVIS_TAG.bin
