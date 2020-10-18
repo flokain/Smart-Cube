@@ -31,12 +31,13 @@ install:
 
 script:
   # Run style checks
-  - pycodestyle --ignore=E501,W504 tinyweb/ test/
+  - export $TINYWEB_DIR misc/tinyweb
+  - pycodestyle --ignore=E501,W504 $TINYWEB_DIR/tinyweb/ $TINYWEB_DIR/test/
   # Run unittests
-  - ./test/test_server.py
+  - $TINYWEB_DIR/test/test_server.py
   # Copy modules to be frozen and compile firmware for esp8266
   - export MPORT=micropython/ports/esp8266/modules
-  - cp -r tinyweb $MPORT
+  - cp -r $TINYWEB_DIR/tinyweb $MPORT
   - cp -r micropython-lib/uasyncio/uasyncio $MPORT
   - cp micropython-lib/logging/logging.py $MPORT
   # Copy examples - to freeze them as well
