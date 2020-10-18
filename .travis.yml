@@ -31,7 +31,7 @@ install:
 
 script:
   # Run style checks
-  - export $TINYWEB_DIR=misc/tinyweb
+  - export TINYWEB_DIR=misc/tinyweb
   - pycodestyle --ignore=E501,W504 $TINYWEB_DIR/tinyweb/ $TINYWEB_DIR/test/
   # Run unittests
   - $TINYWEB_DIR/test/test_server.py
