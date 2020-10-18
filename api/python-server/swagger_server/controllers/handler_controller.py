@@ -19,7 +19,7 @@ def add_side_handler(side_id, body=None):  # noqa: E501
     :rtype: Handler
     """
     if connexion.request.is_json:
-        side_id = .from_dict(connexion.request.get_json())  # noqa: E501
+        side_id = Handler.from_dict(connexion.request.get_json())  # noqa: E501
     if connexion.request.is_json:
         body = Handler.from_dict(connexion.request.get_json())  # noqa: E501
     return 'do some magic!'
@@ -33,7 +33,7 @@ def handler_onchange_get():  # noqa: E501
 
     :rtype: Handler
     """
-    return 'do some magic!'
+    return 'do some magic!123'
 
 
 def handler_onchange_post(body=None):  # noqa: E501
@@ -62,5 +62,5 @@ def handler_side_side_id_get(side_id):  # noqa: E501
     :rtype: Handler
     """
     if connexion.request.is_json:
-        side_id = .from_dict(connexion.request.get_json())  # noqa: E501
-    return 'do some magic!'
+        side_id = Handler.from_dict(connexion.request.get_json())  # noqa: E501
+    return 'do some magic1!'

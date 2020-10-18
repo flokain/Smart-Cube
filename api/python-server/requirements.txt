@@ -1,3 +1,4 @@
-connexion == 2.2.0
-python_dateutil == 2.6.0
+connexion[swagger-ui]
+python_dateutil
 setuptools >= 21.0.0
+ 

@@ -1,3 +1,6 @@
 [submodule "misc/micropython-wifimanager"]
 	path = misc/micropython-wifimanager
 	url = https://github.com/mitchins/micropython-wifimanager.git
+[submodule "misc/tinyweb"]
+	path = misc/tinyweb
+	url = https://github.com/belyalov/tinyweb.git
