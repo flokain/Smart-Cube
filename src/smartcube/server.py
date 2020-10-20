@@ -78,18 +78,17 @@ def Server(hardware: Hardware) -> webserver:
             hardware.Pin(pin).value(val)
             return {"message": "changed", "value": val}
 
-
     class Handler:
         def get(self, data, sideId):
             return {
                 "request": {
-                    "uri": "http://my-remote-service.com/webhook-to-trigger",
+                    "uri": "https://www.toggl.com/api/v8/time_entries/start",
                     "method": "POST",
                     "headers": {
-                        "Authorization": "Basic NzQwYzefIzZjhjYTEwMadadasd",
-                        "accept": "application/json",
+                        "Authorization": "Basic NzQwYzIzZjhjYTEwMzQwMDY3Mjk5NTllMzNjYTg5ODY6YXBpX3Rva2Vu",
+                        "Content-Type": "application/json",
                     },
-                    "payload": "sample body as string",
+                    "payload": '{ "time_entry":\n  { "description": "postmantest",\n    "pid":151476843,\n    "created_with":"curl"\n    }\n}',
                 },
                 "expectedResponse": 201,
             }

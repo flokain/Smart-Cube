@@ -22,13 +22,13 @@ def test_gpio_get_side_handler():
 
     assert response.json() == {
         "request": {
-            "uri": "http://my-remote-service.com/webhook-to-trigger",
+            "uri": "https://www.toggl.com/api/v8/time_entries/start",
             "method": "POST",
             "headers": {
-                "Authorization": "Basic NzQwYzefIzZjhjYTEwMadadasd",
-                "accept": "application/json",
+                'Authorization': 'Basic NzQwYzIzZjhjYTEwMzQwMDY3Mjk5NTllMzNjYTg5ODY6YXBpX3Rva2Vu',
+                'Content-Type': 'application/json',
             },
-            "payload": "sample body as string",
+            "payload": "{ \"time_entry\":\n  { \"description\": \"postmantest\",\n    \"pid\":151476843,\n    \"created_with\":\"curl\"\n    }\n}"
         },
         "expectedResponse": 201,
     }
