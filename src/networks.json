@@ -9,6 +9,11 @@
             "ssid": "fkain-ong",
             "password": "EFIMUMqt",
             "enables_webrepl": false
+        },
+        {
+            "ssid": "HUAWEI-D76B",
+            "password": "68743913",
+            "enables_webrepl": false
         }
     ],
     "access_point": {

@@ -1,6 +1,6 @@
 #!/usr/bin/env micropython
 import logging
-import server
+from smartcube import server
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
