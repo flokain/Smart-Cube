@@ -2,7 +2,7 @@
     "schema": 2,
     "known_networks": [{
             "ssid": "GLUBBE",
-            "password": "GLUBBE06191",
+            "password": "GLUBBE0619",
             "enables_webrepl": true
         },
         {
@@ -13,6 +13,11 @@
         {
             "ssid": "HUAWEI-D76B",
             "password": "68743913",
+            "enables_webrepl": false
+        },
+        {
+            "ssid": "Bellink Gast",
+            "password": "W3sd2EidB17",
             "enables_webrepl": false
         }
     ],

@@ -6,14 +6,15 @@ log = logging.getLogger(__name__)
 # PINs available for use
 
 
-class cube:
+class Cube:
 
-    def __init__(self, hardware: Hardware):
-        self.hardware = Hardware()
-        self.server = Server(hardware)
-        self.server.run(host="0.0.0.0", port=80)
+    def __init__(self):
+        self.hardware = Hardware("ESP8266")
+        self.server = Server(self.hardware)
+    
 
 
 if __name__ == "__main__":
     log.debug("start webserver")
-    cube.start()
+    c = Cube()
+    c = c.server.run(host="0.0.0.0", port=80)

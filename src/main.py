@@ -1,12 +1,9 @@
 #!/usr/bin/env micropython
 import logging
-from smartcube import server
+from smartcube.cube import Cube
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
 
-from wifi_manager import WifiManager
-
-log.debug("start connecting")
-WifiManager.start_managing()
-server.run()
+c = Cube()
+c = c.server.run(host="0.0.0.0", port=80)
