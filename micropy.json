@@ -9,7 +9,8 @@
     "packages": {
         "unittest": "*",
         "micropython-wifimanager": "*",
-        "logging": "*"
+        "logging": "*",
+        "urequests": "*"
     },
     "config": {
         "vscode": true,

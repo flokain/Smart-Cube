@@ -1,6 +1,7 @@
 #!/usr/bin/env micropython
-import logging
-from smartcube.hardware import Hardware
+import logging, gc
+from sys import platform
+from smartcube.hardware import Board, Sensor
 from smartcube.server import Server
 log = logging.getLogger(__name__)
 # PINs available for use
@@ -9,9 +10,8 @@ log = logging.getLogger(__name__)
 class Cube:
 
     def __init__(self):
-        self.hardware = Hardware("ESP8266")
-        self.server = Server(self.hardware)
-    
+        self.board = Board(platform)
+        self.server = Server(self.board)    
 
 
 if __name__ == "__main__":

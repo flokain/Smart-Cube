@@ -6,20 +6,21 @@ from wifi_manager import WifiManager
 log = logging.getLogger(__name__)
 
 
-class Hardware:
+class Board:
 
     pins = {2: "D4", 4: "D2", 5: "D1", 12: "D6", 13: "D7", 14: "D5", 15: "D8", 16: "D0"}
-    device = "ESP8266"
 
     def __init__(self, device):
         # Set all pins to OUT m od
-        log.debug("initalizing hardware for %s", self.device)
+        log.debug("initalizing board %s", device)
         if hasattr(machine, "Pin"):
             for p, d in self.pins.items():
                 machine.Pin(p, machine.Pin.OUT)
 
-        log.debug("load Wifi config")
+        log.debug("free memory: %s",gc.mem_free())
         WifiManager.start_managing()
+        log.debug("Wifi config loaded")
+        log.debug("free memory: %s",gc.mem_free())
 
     @property
     def memory(self):

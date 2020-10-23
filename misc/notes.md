@@ -6,6 +6,8 @@ https://github.com/belyalov/tinyweb
 https://github.com/mcauser/awesome-micropython (list o fmicropython libraries)
 
 https://www.codeply.com/p?starter=Bootstrap%204 (bootstrap online editor)
+
+https://forum.micropython.org/viewtopic.php?t=4813 (maximize ram)
 # reset board from comandline
 ```
 esptool.py --port /dev/ttyUSB0 erase_flash
