@@ -1,11 +1,12 @@
 from tinyweb.server import webserver
-from smartcube.hardware import Hardware
+from smartcube.hardware import board
+from smartcube.models import Handler
 import logging
 
 log = logging.getLogger(__name__)
 
 
-def Server(hardware: Hardware) -> webserver:
+def Server(board: Board) -> webserver:
     log.debug("start configuring webserver")
     app = webserver()
 
@@ -48,9 +49,9 @@ def Server(hardware: Hardware) -> webserver:
     class Status:
         def get(self, data):
             return {
-                "memory": hardware.memory,
-                "storage": hardware.storage,
-                "network": hardware.network,
+                "memory": board.memory,
+                "storage": board.storage,
+                "network": board.network,
             }
 
     log.debug("end configure webui")
@@ -59,8 +60,8 @@ def Server(hardware: Hardware) -> webserver:
     class GPIOList:
         def get(self, data):
             res = []
-            for p, d in hardware.pins.items():
-                res.append({"gpio": p, "nodemcu": d, "value": hardware.Pin(p).value()})
+            for p, d in board.pins.items():
+                res.append({"gpio": p, "nodemcu": d, "value": board.Pin(p).value()})
             return {"pins": res}
 
     # RESTAPI: GPIO controller: turn PINs on/off
@@ -75,28 +76,35 @@ def Server(hardware: Hardware) -> webserver:
                 return {"message": "no such pin"}, 404
             # Change state
             val = int(data["value"])
-            hardware.Pin(pin).value(val)
+            board.Pin(pin).value(val)
             return {"message": "changed", "value": val}
+    
+    @app.resource("/api/v1/handler/side/<side_id>","GET")
+    def handler_side_get(data,side_id):
+        """
+        :param side_id: 
+        :type side_id: dict | bytes
 
-    class Handler:
-        def get(self, data, sideId):
-            return {
-                "request": {
-                    "uri": "https://www.toggl.com/api/v8/time_entries/start",
-                    "method": "POST",
-                    "headers": {
-                        "Authorization": "Basic NzQwYzIzZjhjYTEwMzQwMDY3Mjk5NTllMzNjYTg5ODY6YXBpX3Rva2Vu",
-                        "Content-Type": "application/json",
-                    },
-                    "payload": '{ "time_entry":\n  { "description": "postmantest",\n    "pid":151476843,\n    "created_with":"curl"\n    }\n}',
-                },
-                "expectedResponse": 201,
-            }
+        :rtype: Handler as json
+        """
+        import ujson as json
+        from smartcube.encoder import JSONEncodeModel
+
+        with open("/handlers.json", "r") as f:
+            handler_dict = json.loads(f.read())
+        log.debug(handler_dict )
+        h = Handler.from_dict(handler_dict)
+        log.debug(h)
+        d = JSONEncodeModel(h)
+        log.debug(d)
+        with open("/handlers_writen.json", "w") as f:
+            f.write(json.dumps(d, indent=4))
+        return d
+
 
     app.add_resource(Status, "/api/v1/status")
     app.add_resource(GPIOList, "/api/v1/gpio")
     app.add_resource(GPIO, "/api/v1/gpio/<pin>")
-    app.add_resource(Handler, "/api/v1/handler/side/<sideId>")
     log.debug("end configure restapi")
     log.debug("end configure webserver")
     return app

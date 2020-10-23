@@ -3,7 +3,7 @@
     "known_networks": [{
             "ssid": "GLUBBE",
             "password": "GLUBBE0619",
-            "enables_webrepl": true
+            "enables_webrepl": false
         },
         {
             "ssid": "fkain-ong",
@@ -13,11 +13,6 @@
         {
             "ssid": "HUAWEI-D76B",
             "password": "68743913",
-            "enables_webrepl": false
-        },
-        {
-            "ssid": "Bellink Gast",
-            "password": "W3sd2EidB17",
             "enables_webrepl": false
         }
     ],
