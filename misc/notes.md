@@ -15,3 +15,8 @@ esptool.py --port /dev/ttyUSB0 --baud 460800 write_flash --flash_size=detect 0 ~
 ```
 
 pymakr.json needs to accept gz file on upload
+
+build and deploy firmware with this:
+```bash
+cd ~/Arduino/smartcube/misc/micropython/ports/esp8266/ &&  docker run --rm -v $HOME:$HOME -u 1000 -w $PWD larsks/esp-open-sdk make clean  &&  docker run --rm -v $HOME:$HOME -u 1000 -w $PWD larsks/esp-open-sdk make && esptool.py --port /dev/ttyUSB0 erase_flash && esptool.py --port /dev/ttyUSB0 --baud 460800 write_flash --flash_size=detect 0 ~/Arduino/smartcube/misc/micropython/ports/esp8266/build-GENERIC/firmware-combined.bin
+```

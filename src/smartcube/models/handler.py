@@ -1,9 +1,13 @@
 # coding: utf-8
 import logging
+import ujson as json
+from urequests import request
+
+
 from smartcube.models.base_model_ import Model
 from smartcube.models.http_request import HttpRequest  # noqa: F401,E501
 from smartcube import util
-from urequests import request
+
 log = logging.getLogger(__name__)
 
 
@@ -101,3 +105,21 @@ class Handler(Model):
         )
 
         assert response.status_code == self._expected_response
+
+    @classmethod
+    def from_config(cls, id: str) -> Handler:
+        """load handler from a file of handlers.
+
+        Args:
+            id (str): identifier of the handler within the json file
+
+        Returns:
+            Handler: [description]
+        """
+        with open("/handlers.json", "r") as f:
+            handler_dict = json.load(f)["side_{}".format(id)]
+        
+        return cls.from_dict(handler_dict)
+
+
+        

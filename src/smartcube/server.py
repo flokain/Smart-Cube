@@ -72,7 +72,7 @@ def Server(board: Board) -> webserver:
                 return {"message": '"value" is requred'}, 400
             # Check pin
             pin = int(pin)
-            if pin not in hardware.pins:
+            if pin not in board.pins:
                 return {"message": "no such pin"}, 404
             # Change state
             val = int(data["value"])
