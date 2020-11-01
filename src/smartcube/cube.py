@@ -20,9 +20,14 @@ class Cube:
         """
         while True:
             if self.sensor.has_changed:
-                handler = Handler.from_config(str(self.sensor.side_up))
-                handler.run()
+                try:
+                    handler = Handler.from_config(str(self.sensor.side_up))
+                    handler.run()
+                except (OSError, KeyError):
+                    log.error("no handler ran for side".format(id))
+            
             await asyncio.sleep(1)
+        
 
     def __init__(self):
         """ sets up all components which puts the following

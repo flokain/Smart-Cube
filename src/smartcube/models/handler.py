@@ -93,19 +93,25 @@ class Handler(Model):
 
         self._expected_response = expected_response
 
-    def run(self):
+    def run(self) -> bool:
         r = self._request
         response = request(method=r.method, url=r.uri, json=r.json, headers=r.headers)
 
-        log.debug(
-            "http request %s returned %i. exoected %i",
-            r.uri,
-            response.status_code,
-            self._expected_response,
-        )
-
-        assert response.status_code == self._expected_response
-
+        try:
+            assert response.status_code == self._expected_response
+            log.info(
+                "Handler ran succesfully. Request was {}.\nResponse was {}".format(
+                    self._request.__dict__, response.__dict__
+                )
+            )
+        except AssertionError:
+            log.error(
+                "http request %s returned %i, but expected %i",
+                r.uri,
+                response.status_code,
+                self._expected_response,
+            )
+    
     @classmethod
     def from_config(cls, id: str) -> Handler:
         """load handler from a file of handlers.
@@ -116,10 +122,14 @@ class Handler(Model):
         Returns:
             Handler: [description]
         """
-        with open("/handlers.json", "r") as f:
-            handler_dict = json.load(f)["side_{}".format(id)]
-        
+        try:
+            with open("/handlers.json", "r") as f:
+                handler_dict = json.load(f)["side_{}".format(id)]
+        except OSError as e:
+            log.error("handlers.json not found. no handler triggered")
+            raise e
+        except KeyError as e:
+            log.error("no handler configured for side {}".format(id))
+            raise e
+
         return cls.from_dict(handler_dict)
-
-
-        
