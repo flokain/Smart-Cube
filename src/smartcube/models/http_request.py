@@ -150,3 +150,20 @@ class HttpRequest(Model):
             dict: The payload of this HttpRequest as dict
         """
         return loads(self._payload)
+
+
+    def _render(self, string, **kwargs):
+        import ure as re
+        for key, value in kwargs:
+            pattern = "{{{{{}}}}}".format(key)
+            string = re.sub(pattern,value,string)
+        return string
+
+
+    def render(self,**kwargs):
+        return HttpRequest(
+            uri=_render(self._uri,kwargs),
+            method=_render(self._method, kwargs),
+            headers=[_render(h, kwargs) for h in self._headers],
+            payload=_render(self._payload, kwargs)
+        )
