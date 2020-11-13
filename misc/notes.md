@@ -72,20 +72,19 @@ cd ~/Arduino/smartcube/misc/micropython/ports/esp8266/ &&  docker run --rm -v $H
 ```
 
 
-a1+xa2 =
-b1+yb2 =
-c1+zc1 =
+# Power consumption
 
-0            = 0 
-1 + b2 + 2 = 5 
-a2           = 1 
-c2           = 2 
-1 + 2*b2 + 2 = 7
+|action|notes|mA|
+|-|-|-|
+|deepsleep| | 0,244 |
+|init process | 15-18 s| 71-75 |
+|idle (modem-sleep)| spikes every 3 sec for 1s 7o 75 | 22-25 |
+|idle (light-sleep)| spikes every 3 sec for 1s 7o 75 | 8-10 |
+|webcall| 7-20s | 74 |
+|servercall| 2 sec| 74 |
 
+laut diesen daten: deepsleep zahlt sich aus ab einem intervall von 67 sekunden = 75*18/20. sicher ist es ab 168.5 (2.8 min)
 
+test bei annähernd konstanten 73mA wurden 1000mAh in 13:40 h verbraucht. ich muss noch testen welches programm da tatsächlich drauf lief.
 
-
-
-b*y+c*z = 6
-a*x = 1
-
+todo static ip for faster connection see: https://www.instructables.com/ESP8266-Pro-Tips/
