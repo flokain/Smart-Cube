@@ -94,14 +94,15 @@ class Handler(Model):
         self._expected_response = expected_response
 
     def run(self) -> bool:
+        log.info("runing http request handler: {}".format(self._request.__dict__))
         r = self._request
         response = request(method=r.method, url=r.uri, json=r.json, headers=r.headers)
 
         try:
             assert response.status_code == self._expected_response
             log.info(
-                "Handler ran succesfully. Request was {}.\nResponse was {}".format(
-                    self._request.__dict__, response.__dict__
+                "Handler ran succesfully. Response was {}".format(
+                    response.__dict__
                 )
             )
         except AssertionError:
