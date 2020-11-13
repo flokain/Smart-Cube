@@ -27,9 +27,9 @@ class BallSwitchSensor:
             + 1
         )
 
-        self.corner_1.init(machine.Pin.OUT,0)
-        self.corner_2.init(machine.Pin.OUT,0)
-        self.corner_3.init(machine.Pin.OUT,0)
+        self.corner_1.init(machine.Pin.IN)
+        self.corner_2.init(machine.Pin.IN)
+        self.corner_3.init(machine.Pin.IN)
 
         return side
 
@@ -66,9 +66,9 @@ class BallSwitchSensor:
         self, corner_1_gpio=5, corner_2_gpio=4, corner_3_gpio=0, change_delay_ms=3000
     ):
 
-        self.corner_1 = machine.Pin(corner_1_gpio, machine.Pin.OUT)
-        self.corner_2 = machine.Pin(corner_2_gpio, machine.Pin.OUT)
-        self.corner_3 = machine.Pin(corner_3_gpio, machine.Pin.OUT)
+        self.corner_1 = machine.Pin(corner_1_gpio, machine.Pin.IN)
+        self.corner_2 = machine.Pin(corner_2_gpio, machine.Pin.IN)
+        self.corner_3 = machine.Pin(corner_3_gpio, machine.Pin.IN)
         self._temporary_side_up = self.side_up
         self._last_side_up = self._temporary_side_up
         self._side_up_tick_ms = time.ticks_ms()
