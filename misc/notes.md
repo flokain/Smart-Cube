@@ -1,3 +1,9 @@
+# development notes
+## api updating
+1. change the api files
+2. download flask server stub
+3. extract to api/server/
+
 # Sources:
 https://github.com/BradenM/micropy-cli
 http://micropython.org/webrepl/#192.168.0.157:8266/
@@ -38,7 +44,7 @@ https://de.aliexpress.com/item/32841796602.html?spm=a2g0o.productlist.0.0.58241b
 
 
 ## selbstgebastelt
-1000uF capacitor (0,093$) (https://de.aliexpress.com/item/32948189325.html?spm=a2g0o.productlist.0.0.5ece70cdTogVNq&algo_pvid=70ae1869-17d9-4b79-9741-83ec89f9cb81&algo_expid=70ae1869-17d9-4b79-9741-83ec89f9cb81-1&btsid=0bb0624016035756034341727e0add&ws_ab_test=searchweb0_0,searchweb201602_,searchweb201603 )
+1000uF capacitor (0,093 \$)  https://de.aliexpress.com/item/32948189325.html?spm=a2g0o.productlist.0.0.5ece70cdTogVNq&algo_pvid=70ae1869-17d9-4b79-9741-83ec89f9cb81&algo_expid=70ae1869-17d9-4b79-9741-83ec89f9cb81-1&btsid=0bb0624016035756034341727e0add&ws_ab_test=searchweb0_0,searchweb201602_,searchweb201603
 100nF capcitor (0,0056$)(https://de.aliexpress.com/item/32971478818.html?spm=a2g0o.productlist.0.0.70d44aa1LX5K3U&algo_pvid=32b73561-80c0-4d60-a0aa-bac72994e341&algo_expid=32b73561-80c0-4d60-a0aa-bac72994e341-8&btsid=0bb0624016035754533918546e0add&ws_ab_test=searchweb0_0,searchweb201602_,searchweb201603_)
 LDO regulator (0,068) MCP1700-3302E or HT7333-A
 
@@ -85,6 +91,28 @@ cd ~/Arduino/smartcube/misc/micropython/ports/esp8266/ &&  docker run --rm -v $H
 
 laut diesen daten: deepsleep zahlt sich aus ab einem intervall von 67 sekunden = 75*18/20. sicher ist es ab 168.5 (2.8 min)
 
-test bei annähernd konstanten 73mA wurden 1000mAh in 13:40 h verbraucht. ich muss noch testen welches programm da tatsächlich drauf lief.
+- [ ] test bei annähernd konstanten 73mA wurden 1000mAh in 13:40 h verbraucht. ich muss noch testen welches programm da tatsächlich drauf lief.
+
+### version fe685d1fc
+
+- [ ] eine stunde in idle mode mit version fe685d1f auf seite 3 verbrauchte 20mah
+- [ ] mit 
+- [ ] Auf seite 4,5,6 habe ich gar keinen strom gemessen, oder so zu schwach fuer da messgerät. wenn ich in einem dieses zustande gestartet habe. dabei waren alle pins auf pin IN ohne resistor im idle mode
+  - [ ] auf seite 1 sind es 9 mA ( alle kontakte geschlossen)
+  - [ ] auf seite 3 sind es 7 mA ( d2/gpio4 offen d1 d3 geschlossen)
+  - [ ] auf seite 6 sind es 0 mA  alle offen 0 mA
+  - [ ] auf seite 5 sind es 0 mA  d1/gpio5 geshlossen 0mA
+  - [ ] auf seite 4 sind es 0 mA  ( d2/gpio4 geschlossen)
+  - [ ] auf seite 2 sind es 7 mA ( d1 ist offen  d2 d3 geschlossen)
+
+wenn d3 geschlossen ist fließt am meisten strom (ca 7mAh)
+
+### version 488d11c9d045
+
+pins sind im idle mode auf out und value 0 gestellt.
+
+stromverbrauch wurde hier mi 3mAh gemessen
+
+langzeit test idle:  9mA  (3,25h 31mAh) (geschätzte laufzeit 83h )
 
 todo static ip for faster connection see: https://www.instructables.com/ESP8266-Pro-Tips/
