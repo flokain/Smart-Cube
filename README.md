@@ -30,7 +30,8 @@ To accomplish this vision I set the following goals:
 # Setup
 
 # Documentation
-
+restapi is openapi conform:
+https://app.swaggerhub.com/apis-docs/flokain/smartcube/v1
 # Contribute
 
 ## Bug reports
