@@ -4,7 +4,7 @@ servers:
       description: configure url to point to smartcube 
       variables:
         ip: 
-          default: 192.168.0.156
+          default: 10.0.0.21/api/v1
           description: ip or url of cube device. make sure to
         protocol:
           description: select secure https or unsecure http connection
@@ -12,7 +12,7 @@ servers:
             - 'http'
             - 'https'
           default: 'http'
-    - url: https://virtserver.swaggerhub.com/flokain/smartcube/1.0.0
+    - url: 10.0.0.21/api/v1
       description: mocking server that allways gives you a sampe response
 
 info:
