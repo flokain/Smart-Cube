@@ -114,7 +114,7 @@ class Handler(Model):
             )
     
     @classmethod
-    def from_config(cls, id: str) -> Handler:
+    def from_config(cls, id: str):
         """load handler from a file of handlers.
 
         Args:

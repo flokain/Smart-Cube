@@ -1,7 +1,9 @@
 from tinyweb.server import webserver
-from smartcube.hardware import board
-from smartcube.models import Handler
+from smartcube.hardware.board import Board
+from smartcube.models import Handler, Wifi
 import logging
+from smartcube.encoder import JSONEncodeModel
+import json
 
 log = logging.getLogger(__name__)
 
@@ -57,11 +59,13 @@ def Server(board: Board) -> webserver:
     log.debug("end configure webui")
     log.debug("start configure restapi")
     # RESTAPI: GPIO status
+
     class GPIOList:
         def get(self, data):
             res = []
             for p, d in board.pins.items():
-                res.append({"gpio": p, "nodemcu": d, "value": board.Pin(p).value()})
+                res.append({"gpio": p, "nodemcu": d,
+                            "value": board.Pin(p).value()})
             return {"pins": res}
 
     # RESTAPI: GPIO controller: turn PINs on/off
@@ -78,9 +82,9 @@ def Server(board: Board) -> webserver:
             val = int(data["value"])
             board.Pin(pin).value(val)
             return {"message": "changed", "value": val}
-    
-    @app.resource("/api/v1/handler/side/<side_id>","GET")
-    def handler_side_get(data,side_id):
+
+    @app.resource("/api/v1/handler/side/<side_id>", "GET")
+    def handler_side_get(data, side_id):
         """
         :param side_id: 
         :type side_id: dict | bytes
@@ -92,7 +96,7 @@ def Server(board: Board) -> webserver:
 
         with open("/handlers.json", "r") as f:
             handler_dict = json.loads(f.read())
-        log.debug(handler_dict )
+        log.debug(handler_dict)
         h = Handler.from_dict(handler_dict)
         log.debug(h)
         d = JSONEncodeModel(h)
@@ -101,10 +105,27 @@ def Server(board: Board) -> webserver:
             f.write(json.dumps(d, indent=4))
         return d
 
+    class WifiApi:
+        def get(self, data):
+            """
+            :rtype: Wifi list as json
+            """
+            wifis = [JSONEncodeModel(wifi)['ssid'] for wifi in Wifi.get_all()]
+            log.debug("list of wifis:")
+            wifis = json.dumps(wifis)
+
+            with open("/networks_writen.json", "w") as f:
+                f.write(wifis)
+            return wifis
+
+        def post(self, data):
+            wifi = Wifi.from_dict(data)
+            wifi.save()
 
     app.add_resource(Status, "/api/v1/status")
     app.add_resource(GPIOList, "/api/v1/gpio")
     app.add_resource(GPIO, "/api/v1/gpio/<pin>")
+    app.add_resource(WifiApi, "/api/v1/system/config/wifi")
     log.debug("end configure restapi")
     log.debug("end configure webserver")
     return app

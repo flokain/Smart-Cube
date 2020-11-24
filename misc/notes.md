@@ -1,8 +1,11 @@
 # development notes
 ## api updating
 1. change the api files
-2. download flask server stub
-3. extract to api/server/
+2. check in all other changes
+3. download flask server stub
+4. extract to api/server/
+5. check changes and commit
+6. 
 
 # Sources:
 https://github.com/BradenM/micropy-cli

@@ -9,7 +9,8 @@ class HttpRequest(Model):
 
     Do not edit the class manually.
     """
-    def __init__(self, uri: str=None, method: str='GET', headers=None, payload: str=None):  # noqa: E501
+
+    def __init__(self, uri: str = None, method: str = 'GET', headers=None, payload: str = None):  # noqa: E501
         """HttpRequest - a model defined in Swagger
 
         :param uri: The uri of this HttpRequest.  # noqa: E501
@@ -141,7 +142,7 @@ class HttpRequest(Model):
         """
 
         self._payload = payload
-    
+
     @property
     def json(self) -> dict:
         """Gets the payload as json dict
@@ -151,19 +152,17 @@ class HttpRequest(Model):
         """
         return loads(self._payload)
 
-
     def _render(self, string, **kwargs):
         import ure as re
         for key, value in kwargs:
             pattern = "{{{{{}}}}}".format(key)
-            string = re.sub(pattern,value,string)
+            string = re.sub(pattern, value, string)
         return string
 
-
-    def render(self,**kwargs):
+    def render(self, **kwargs):
         return HttpRequest(
-            uri=_render(self._uri,kwargs),
-            method=_render(self._method, kwargs),
-            headers=[_render(h, kwargs) for h in self._headers],
-            payload=_render(self._payload, kwargs)
+            uri=self._render(self._uri, kwargs),
+            method=self._render(self._method, kwargs),
+            headers=[self._render(h, kwargs) for h in self._headers],
+            payload=self._render(self._payload, kwargs)
         )

@@ -1,5 +1,6 @@
+import ujson as json
+import btree
 from smartcube import util
-
 
 
 class Model(object):
@@ -11,8 +12,10 @@ class Model(object):
     # value is json key in definition.
     attribute_map = {}
 
+    database = "database/smartcube_database"
+
     @classmethod
-    def from_dict(cls, dikt) :
+    def from_dict(cls, dikt):
         """Returns the dict as a model"""
         return util.deserialize_model(dikt, cls)
 
@@ -61,3 +64,38 @@ class Model(object):
     def __ne__(self, other):
         """Returns true if both objects are not equal"""
         return not self == other
+
+    @classmethod
+    def get_by_id(cls, key):
+        try:
+            file = open(cls.database, "r+b")
+        except OSError:
+            file = open(cls.database, "w+b")
+        db = btree.open(file)
+
+        value = db[key.encode()].decode()
+
+        db.close()
+        file.close()
+
+        return cls.from_dict(json.loads(value))
+
+    @classmethod
+    def dump(cls):
+        try:
+            file = open(cls.database, "r+b")
+        except OSError:
+            file = open(cls.database, "w+b")
+        db = btree.open(file)
+
+        with open("/database/dump.json", "w") as dump:
+            dump.write("{")
+            for key in db:
+                dump.write(key.decode())
+                dump.write(":")
+                dump.write(db[key].decode())
+                dump.write(",")
+            dump.write("}")
+
+        db.close()
+        file.close()
