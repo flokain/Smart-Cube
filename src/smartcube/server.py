@@ -86,7 +86,7 @@ def Server(board: Board) -> webserver:
     @app.resource("/api/v1/handler/side/<side_id>", "GET")
     def handler_side_get(data, side_id):
         """
-        :param side_id: 
+        :param side_id:
         :type side_id: dict | bytes
 
         :rtype: Handler as json

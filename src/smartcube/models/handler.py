@@ -112,7 +112,7 @@ class Handler(Model):
                 response.status_code,
                 self._expected_response,
             )
-    
+
     @classmethod
     def from_config(cls, id: str):
         """load handler from a file of handlers.

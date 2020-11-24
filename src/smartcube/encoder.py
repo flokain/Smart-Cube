@@ -4,7 +4,7 @@ import ujson as json
 
 
 def JSONEncodeModel(o):
-    
+
     if isinstance(o, Model):
         dikt = {}
         for attr, _ in o.swagger_types.items():
