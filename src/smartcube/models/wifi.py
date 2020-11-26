@@ -84,28 +84,3 @@ class Wifi(Model):
         """
 
         self._password = password
-
-    # @classmethod
-    # def get_all(cls):
-    #     with open("/networks.json", "r") as f:
-    #         wifi_dict = json.loads(f.read())
-    #         wifi_dict = wifi_dict["known_networks"]
-    #     return [cls.from_dict(w) for w in wifi_dict]
-
-    # @classmethod
-    # def save_all(cls,wifis):
-    #     with open("/networks.json", "rw") as f:
-    #         networks = json.loads(f.read())
-    #         networks["known_networks"] = [JSONEncodeModel(wifi) for wifi in wifis]
-    #         f.write(json.dumps(networks, indent=4))
-
-    # def save(self):
-    #     wifis = self.get_all()
-    #     for wifi in wifis:
-    #         if wifi.ssid == self.ssid:
-    #             wifi.password = self.password
-    #             self.save_all(wifis)
-    #             return
-
-    #     wifis.append(self)
-    #     self.save_all(wifis)
