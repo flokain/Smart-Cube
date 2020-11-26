@@ -1,8 +1,7 @@
 from tinyweb.server import webserver
 from smartcube.hardware.board import Board
-from smartcube.models import Handler, Wifi
+from smartcube.models import Handler, Wifi, Model
 import logging
-from smartcube.encoder import JSONEncodeModel
 import json
 
 log = logging.getLogger(__name__)
@@ -92,40 +91,101 @@ def Server(board: Board) -> webserver:
         :rtype: Handler as json
         """
         import ujson as json
-        from smartcube.encoder import JSONEncodeModel
 
         with open("/handlers.json", "r") as f:
             handler_dict = json.loads(f.read())
         log.debug(handler_dict)
         h = Handler.from_dict(handler_dict)
         log.debug(h)
-        d = JSONEncodeModel(h)
+        d = Model.JSONEncodeModel(h)
         log.debug(d)
         with open("/handlers_writen.json", "w") as f:
             f.write(json.dumps(d, indent=4))
         return d
 
-    class WifiApi:
-        def get(self, data):
-            """
-            :rtype: Wifi list as json
-            """
-            wifis = [JSONEncodeModel(wifi)['ssid'] for wifi in Wifi.get_all()]
-            log.debug("list of wifis:")
-            wifis = json.dumps(wifis)
+    class APIView:
+        """
+        Convenience class for creating a restfull router vie tinyweb
 
-            with open("/networks_writen.json", "w") as f:
-                f.write(wifis)
-            return wifis
+        """
+
+        def get(self, data, id):
+            raise NotImplementedError
+
+        def put(self, data, id):
+            raise NotImplementedError
+
+        def delete(self, data, id):
+            raise NotImplementedError
+
+        def list(self, data):
+            raise NotImplementedError
+
+        def post(self, data):
+            raise NotImplementedError
+
+        @classmethod
+        def add_APIView_router(cls, app: webserver, path: str):
+            """
+            generates router analogue to django restframeworks viewset routers
+            <path>/<classname w/o View suffix> supports get and post
+            <path>/<classname w/o View suffix>/<id> supports get, put and delete
+
+            Args:
+                app (webserver): the tinyweb server to add routes to
+                path (str): base bath for the router
+            """
+            class tmp_list:
+                def get(self, data):
+                    return cls.list(self, data)
+
+                def post(self, data):
+                    return cls.post(self, data)
+
+            class tmp_id:
+                def get(self, data, id):
+                    return cls.get(self, data)
+
+                def put(self, data, id):
+                    return cls.put(self, data)
+
+                def delete(self, data, id):
+                    return cls.delete(self, data)
+
+            ressource_name = cls.__name__[0:-4].lower()
+
+            app.add_resource(tmp_list, "{}/{}".format(path, ressource_name))
+            app.add_resource(tmp_id, "{}/{}/<id>".format(path, ressource_name))
+
+    class WifiView(APIView):
+        def get(self, data, id):
+            """
+            :rtype: return Wifi as json
+            """
+            return Model.JSONEncodeModel(Wifi.get_by_id(id))
+        # TODO: #5 othe methods
 
         def post(self, data):
             wifi = Wifi.from_dict(data)
             wifi.save()
 
+        def delete(self, data, id):
+            Wifi.delete(id)
+
+        def list(self, data):
+            """
+            :rtype: Wifi list as json
+            """
+            wifis = [Model.JSONEncodeModel(wifi)['ssid']
+                     for wifi in Wifi.get_all()]
+            wifis = json.dumps(wifis)
+            return wifis
+
     app.add_resource(Status, "/api/v1/status")
     app.add_resource(GPIOList, "/api/v1/gpio")
     app.add_resource(GPIO, "/api/v1/gpio/<pin>")
-    app.add_resource(WifiApi, "/api/v1/system/config/wifi")
+    app.add_resource(WifiView, "/api/v1/system/config/wifi")
+    WifiView.add_APIView_router(app, "/api/v1/")
     log.debug("end configure restapi")
     log.debug("end configure webserver")
     return app

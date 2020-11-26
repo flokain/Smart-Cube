@@ -1,6 +1,33 @@
 import ujson as json
 import btree
+import os
 from smartcube import util
+import logging
+
+log = logging.getLogger(__name__)
+try:
+    os.listdir("/database")
+except OSError:
+    os.mkdir("/database")
+
+
+def database_operation(func):
+    def wrapper_database_operation(*args, **kwargs):
+        cls = args[0]
+        try:
+            file = open(cls.database, "r+b")
+        except OSError:
+            file = open(cls.database, "w+b")
+        cls.db = btree.open(file)
+
+        value = func(*args, **kwargs)
+
+        cls.db.flush()
+        cls.db.close()
+        file.close()
+
+        return value
+    return wrapper_database_operation
 
 
 class Model(object):
@@ -66,36 +93,86 @@ class Model(object):
         return not self == other
 
     @classmethod
+    def JSONEncodeModel(cls, obj):
+        if isinstance(obj, cls):
+            dikt = {}
+            for attr, _ in obj.swagger_types.items():
+                value = getattr(obj, attr)
+                if value is None:
+                    continue
+                attr = obj.attribute_map[attr]
+                dikt[attr] = value
+            return dikt
+        else:
+            raise TypeError("object is not based on smartcube Model")
+
+    @classmethod
+    @database_operation
     def get_by_id(cls, key):
-        try:
-            file = open(cls.database, "r+b")
-        except OSError:
-            file = open(cls.database, "w+b")
-        db = btree.open(file)
-
-        value = db[key.encode()].decode()
-
-        db.close()
-        file.close()
-
+        k = (cls.__name__+str(key)).encode()
+        value = cls.db[k].decode()
         return cls.from_dict(json.loads(value))
 
     @classmethod
-    def dump(cls):
-        try:
-            file = open(cls.database, "r+b")
-        except OSError:
-            file = open(cls.database, "w+b")
-        db = btree.open(file)
+    @database_operation
+    def get_all(cls):
+        basekey = cls.__name__.encode()
+        lst = []
+        for k, v in cls.db.items(basekey):
+            if basekey in k:
+                lst.append(cls.from_dict(json.loads(v.decode())))
+            else:
+                break
+        return lst
 
+    @classmethod
+    @database_operation
+    def dump(cls):
         with open("/database/dump.json", "w") as dump:
             dump.write("{")
-            for key in db:
+            for key in cls.db:
                 dump.write(key.decode())
                 dump.write(":")
-                dump.write(db[key].decode())
+                dump.write(cls.db[key].decode())
                 dump.write(",")
             dump.write("}")
 
-        db.close()
-        file.close()
+    @classmethod
+    @database_operation
+    def _save(cls, obj, key: str = None):
+        """save an object. if no id is provided the database will be scan for the next free integer for that class
+
+        Args:
+            key (str, optional): [description]. the id of the object
+        """
+
+        if key is None:
+            k = 0
+            while True:
+                k += 1
+                try:
+                    cls.get_by_id(k) # if database is new this will reopen the new db and close it. the save operation will therefore fail to save data in the closed file
+                    # this is a dirty hack to reopen the new database.
+                except KeyError:
+                    log.debug("found unused key {}".format(k))
+                    key = str(k)
+                    break
+
+        k = (cls.__name__+key)
+        cls.db[k.encode()] = json.dumps(cls.JSONEncodeModel(obj)).encode()
+        return key
+
+    def save(self, key=None):
+        if key is not None:
+            key = str(key)
+        return self._save(self, key)
+
+    @classmethod
+    @database_operation
+    def _delete(cls, key: str):
+        del cls.db[(cls.__name__+str(key)).encode()]
+
+    def delete(self, key=None):
+        if key is not None:
+            key = str(key)
+        self._delete(self, str(key))
