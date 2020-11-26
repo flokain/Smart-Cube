@@ -1,10 +1,31 @@
 {
     "schema": 2,
     "known_networks": [{
-        "ssid": "example SSID",
-        "password": "EXAMPLEPASS",
-        "enables_webrepl": false
-    }],
+            "ssid": "GLUBBE",
+            "password": "GLUBBE0619",
+            "enables_webrepl": false
+        },
+        {
+            "ssid": "fkain-ong",
+            "password": "EFIMUMqt",
+            "enables_webrepl": false
+        },
+        {
+            "ssid": "HUAWEI-D76B",
+            "password": "68743913",
+            "enables_webrepl": false
+        },
+        {
+            "ssid": "Volvo 123GT",
+            "password": "XdlPQEqqvcEmffqMzbJ4Bl53",
+            "enables_webrepl": false
+        },
+        {
+            "ssid": "Kain Internet Guest Access",
+            "password": "bssdbxjbl",
+            "enables_webrepl": false
+        }
+    ],
     "access_point": {
         "config": {
             "essid": "Micropython-Dev",

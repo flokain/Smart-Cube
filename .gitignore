@@ -146,3 +146,4 @@ dmypy.json
 !micropy.json
 misc/*.py
 src/*.json
+src/test/snippets.py
