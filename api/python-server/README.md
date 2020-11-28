@@ -21,13 +21,13 @@ pip3 install -r requirements.txt
 and open your browser to here:
 
 ```
-http://localhost:8080/ui/
+http://localhost:8080/api/v1/ui/
 ```
 
 Your Swagger definition lives here:
 
 ```
-http://localhost:8080/swagger.json
+http://localhost:8080/api/v1/openapi.json
 ```
 
 To launch the integration tests, use tox:
