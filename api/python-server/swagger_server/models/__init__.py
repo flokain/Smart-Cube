@@ -9,3 +9,4 @@ from swagger_server.models.http_request import HttpRequest
 from swagger_server.models.side_id import SideId
 from swagger_server.models.system_config import SystemConfig
 from swagger_server.models.system_state import SystemState
+from swagger_server.models.wifi import Wifi
