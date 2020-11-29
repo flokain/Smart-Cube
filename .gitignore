@@ -147,3 +147,4 @@ dmypy.json
 misc/*.py
 src/*.json
 src/test/snippets.py
+src/unittests/snippets.py
