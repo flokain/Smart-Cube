@@ -1,3 +1,8 @@
+import logging
+
+log = logging.Logger(__name__)
+
+
 def _deserialize(data, klass):
     """Deserializes dict, list, str into an object.
 
@@ -11,17 +16,13 @@ def _deserialize(data, klass):
 
     if klass in (int, float, str, bool):
         return _deserialize_primitive(data, klass)
-    elif klass == object:
-        return _deserialize_object(data)
-    # elif klass == datetime.date:
-    #     return deserialize_date(data)
-    # elif klass == datetime.datetime:
-    #     return deserialize_datetime(data)
     elif hasattr(klass, '__origin__'):
         if klass.__origin__ == list:
             return _deserialize_list(data, klass.__args__[0])
         if klass.__origin__ == dict:
             return _deserialize_dict(data, klass.__args__[1])
+    elif klass in (list, dict, object):
+        return _deserialize_object(data)
     else:
         return deserialize_model(data, klass)
 
@@ -93,15 +94,16 @@ def deserialize_model(data, klass):
     :return: model object.
     """
     instance = klass()
+    if not hasattr(instance, "swagger_types"):
+        raise TypeError("klass is not serializable")
 
-    if not hasattr(instance, "swagger_types") or not instance.swagger_types:
-        return data
+    if not isinstance(data, (list, dict)):
+        raise TypeError("data needs to be list or dict")
 
-    for attr, attr_type in instance.swagger_types.items():
-        if data is not None \
-                and instance.attribute_map[attr] in data \
-                and isinstance(data, (list, dict)):
-            value = data[instance.attribute_map[attr]]
+    for attr, _attr in instance.attribute_map.items():
+        if _attr in data:
+            value = data[_attr]
+            attr_type = instance.swagger_types[attr]
             setattr(instance, attr, _deserialize(value, attr_type))
 
     return instance

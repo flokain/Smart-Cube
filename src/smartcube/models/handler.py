@@ -17,27 +17,33 @@ class Handler(Model):
     Do not edit the class manually.
     """
 
-    def __init__(
-        self, request: HttpRequest = None, expected_response: int = 200
-    ):  # noqa: E501
+    def __init__(self, id: str = None, request: HttpRequest = None, expected_response: int = 200):  # noqa: E501
         """Handler - a model defined in Swagger
 
+        :param id: The id of this Handler.  # noqa: E501
+        :type id: str
         :param request: The request of this Handler.  # noqa: E501
         :type request: HttpRequest
         :param expected_response: The expected_response of this Handler.  # noqa: E501
         :type expected_response: int
         """
-        self.swagger_types = {"request": HttpRequest, "expected_response": int}
+        self.swagger_types = {
+            'id': str,
+            'request': HttpRequest,
+            'expected_response': int
+        }
 
         self.attribute_map = {
-            "request": "request",
-            "expected_response": "expectedResponse",
+            'id': 'id',
+            'request': 'request',
+            'expected_response': 'expectedResponse'
         }
+        self._id = id
         self._request = request
         self._expected_response = expected_response
 
     @classmethod
-    def from_dict(cls, dikt) -> "Handler":
+    def from_dict(cls, dikt) -> 'Handler':
         """Returns the dict as a model
 
         :param dikt: A dict.
@@ -46,6 +52,27 @@ class Handler(Model):
         :rtype: Handler
         """
         return util.deserialize_model(dikt, cls)
+
+    @property
+    def id(self) -> str:
+        """Gets the id of this Handler.
+
+
+        :return: The id of this Handler.
+        :rtype: str
+        """
+        return self._id
+
+    @id.setter
+    def id(self, id: str):
+        """Sets the id of this Handler.
+
+
+        :param id: The id of this Handler.
+        :type id: str
+        """
+
+        self._id = id
 
     @property
     def request(self) -> HttpRequest:
@@ -66,9 +93,7 @@ class Handler(Model):
         :type request: HttpRequest
         """
         if request is None:
-            raise ValueError(
-                "Invalid value for `request`, must not be `None`"
-            )  # noqa: E501
+            raise ValueError("Invalid value for `request`, must not be `None`")  # noqa: E501
 
         self._request = request
 
@@ -94,9 +119,11 @@ class Handler(Model):
         self._expected_response = expected_response
 
     def run(self) -> bool:
-        log.info("runing http request handler: {}".format(self._request.__dict__))
+        log.info("runing http request handler: {}".format(
+            self._request.__dict__))
         r = self._request
-        response = request(method=r.method, url=r.uri, json=r.json, headers=r.headers)
+        response = request(method=r.method, url=r.uri,
+                           json=r.json, headers=r.headers)
 
         try:
             assert response.status_code == self._expected_response

@@ -1,8 +1,8 @@
-from tinyweb.server import webserver
+from tinyweb.server import webserver, HTTPException
 from smartcube.hardware.board import Board
 from smartcube.models import Handler, Wifi, Model
 import logging
-import json
+import ujson as json
 
 log = logging.getLogger(__name__)
 
@@ -82,47 +82,45 @@ def Server(board: Board) -> webserver:
             board.Pin(pin).value(val)
             return {"message": "changed", "value": val}
 
-    @app.resource("/api/v1/handler/side/<side_id>", "GET")
-    def handler_side_get(data, side_id):
-        """
-        :param side_id:
-        :type side_id: dict | bytes
-
-        :rtype: Handler as json
-        """
-        import ujson as json
-
-        with open("/handlers.json", "r") as f:
-            handler_dict = json.loads(f.read())
-        log.debug(handler_dict)
-        h = Handler.from_dict(handler_dict)
-        log.debug(h)
-        d = Model.JSONEncodeModel(h)
-        log.debug(d)
-        with open("/handlers_writen.json", "w") as f:
-            f.write(json.dumps(d, indent=4))
-        return d
-
     class APIView:
         """
         Convenience class for creating a restfull router vie tinyweb
 
         """
+        class Meta:
+            model = Model
+            # TODO: #6 implement read and write only field specification
+            # DRF:  extra_kwargs = {'password': {'write_only': True}}
+            # DRF:  extra_kwargs = {'password': {'read_only': True}}
 
-        def get(self, data, id):
-            raise NotImplementedError
+        resource_name = Meta.model.__name__.lower()
 
-        def put(self, data, id):
-            raise NotImplementedError
+        @classmethod
+        def get(cls, data, id):
+            """
+            :rtype: return Wifi as json
+            """
+            return Model.JSONEncodeModel(cls.Meta.model.get_by_id(id))
 
-        def delete(self, data, id):
-            raise NotImplementedError
+        @classmethod
+        def list(cls, data):
+            return json.dumps(Model.JSONEncodeModelList(cls.Meta.model.get_all()))
 
-        def list(self, data):
-            raise NotImplementedError
+        @classmethod
+        def post(cls, data):
+            obj = cls.Meta.model.from_dict(data)
+            obj.save()
+            return obj.JSONEncodeModel(obj)
 
-        def post(self, data):
-            raise NotImplementedError
+        @classmethod
+        def put(cls, data, id):
+            obj = cls.Meta.model.from_dict(data)
+            obj.save(id)
+            return obj.JSONEncodeModel(obj)
+
+        @classmethod
+        def delete(cls, data, id):
+            cls.Meta.model._delete(id)
 
         @classmethod
         def add_APIView_router(cls, app: webserver, path: str):
@@ -137,55 +135,57 @@ def Server(board: Board) -> webserver:
             """
             class tmp_list:
                 def get(self, data):
-                    return cls.list(self, data)
+                    return cls.list(data)
 
                 def post(self, data):
-                    return cls.post(self, data)
+                    return cls.post(data)
 
             class tmp_id:
                 def get(self, data, id):
-                    return cls.get(self, data)
+                    try:
+                        return cls.get(data, id)
+                    except KeyError:
+                        raise HTTPException(404)
 
                 def put(self, data, id):
-                    return cls.put(self, data)
+                    try:
+                        return cls.put(data, id)
+                    except KeyError:
+                        raise HTTPException(404)
 
                 def delete(self, data, id):
-                    return cls.delete(self, data)
+                    try:
+                        cls.delete(data, id)
+                    except KeyError:
+                        raise HTTPException(404)
 
-            ressource_name = cls.__name__[0:-4].lower()
+            list_string = "{}/{}".format(path, cls.resource_name)
+            log.debug("adding route {}".format(list_string))
+            app.add_resource(
+                tmp_list, "{}/{}".format(path, cls.resource_name))
 
-            app.add_resource(tmp_list, "{}/{}".format(path, ressource_name))
-            app.add_resource(tmp_id, "{}/{}/<id>".format(path, ressource_name))
+            res_string = "{}/{}/<id>".format(path,
+                                             cls.resource_name)
+            log.debug("adding route {}".format(res_string))
+            app.add_resource(
+                tmp_id, "{}/{}/<id>".format(path, cls.resource_name))
 
     class WifiView(APIView):
-        def get(self, data, id):
-            """
-            :rtype: return Wifi as json
-            """
-            return Model.JSONEncodeModel(Wifi.get_by_id(id))
-        # TODO: #5 othe methods
+        class Meta:
+            model = Wifi
 
-        def post(self, data):
-            wifi = Wifi.from_dict(data)
-            wifi.save()
+    class HandlerView(APIView):
+        class Meta:
+            model = Handler
+            # TODO: #9 find a better path for all handlers
 
-        def delete(self, data, id):
-            Wifi.delete(id)
-
-        def list(self, data):
-            """
-            :rtype: Wifi list as json
-            """
-            wifis = [Model.JSONEncodeModel(wifi)['ssid']
-                     for wifi in Wifi.get_all()]
-            wifis = json.dumps(wifis)
-            return wifis
+        resource_name = "{}/side".format(Meta.model.__name__.lower())
 
     app.add_resource(Status, "/api/v1/status")
     app.add_resource(GPIOList, "/api/v1/gpio")
     app.add_resource(GPIO, "/api/v1/gpio/<pin>")
-    app.add_resource(WifiView, "/api/v1/system/config/wifi")
-    WifiView.add_APIView_router(app, "/api/v1/")
+    WifiView.add_APIView_router(app, "/api/v1/system/config")
+    HandlerView.add_APIView_router(app, "/api/v1")
     log.debug("end configure restapi")
     log.debug("end configure webserver")
     return app
