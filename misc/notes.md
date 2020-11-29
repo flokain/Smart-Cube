@@ -1,11 +1,20 @@
 # development notes
+event and handler follow the observer design pattern
+handler subscribe an event and get to the events Handler list.
+Whenever a event happens it triggers all subscripted handlers.
+
 ## api updating
 1. change the api files
 2. check in all other changes
 3. download flask server stub
 4. extract to api/server/
 5. check changes and commit
-6. 
+
+## testing
+if I need classes from src folder in the functional testing i need to make
+```bash
+echo "PYTHON PATH = ./src" > .env
+```
 
 # Sources:
 https://github.com/BradenM/micropy-cli
@@ -83,14 +92,14 @@ cd ~/Arduino/smartcube/misc/micropython/ports/esp8266/ &&  docker run --rm -v $H
 
 # Power consumption
 
-|action|notes|mA|
-|-|-|-|
-|deepsleep| | 0,244 |
-|init process | 15-18 s| 71-75 |
-|idle (modem-sleep)| spikes every 3 sec for 1s 7o 75 | 22-25 |
-|idle (light-sleep)| spikes every 3 sec for 1s 7o 75 | 8-10 |
-|webcall| 7-20s | 74 |
-|servercall| 2 sec| 74 |
+| action             | notes                           | mA    |
+| ------------------ | ------------------------------- | ----- |
+| deepsleep          |                                 | 0,244 |
+| init process       | 15-18 s                         | 71-75 |
+| idle (modem-sleep) | spikes every 3 sec for 1s 7o 75 | 22-25 |
+| idle (light-sleep) | spikes every 3 sec for 1s 7o 75 | 8-10  |
+| webcall            | 7-20s                           | 74    |
+| servercall         | 2 sec                           | 74    |
 
 laut diesen daten: deepsleep zahlt sich aus ab einem intervall von 67 sekunden = 75*18/20. sicher ist es ab 168.5 (2.8 min)
 
@@ -119,3 +128,4 @@ stromverbrauch wurde hier mi 3mAh gemessen
 langzeit test idle:  9mA  (3,25h 31mAh) (geschätzte laufzeit 83h )
 
 todo static ip for faster connection see: https://www.instructables.com/ESP8266-Pro-Tips/
+

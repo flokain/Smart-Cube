@@ -8,6 +8,9 @@ At the moment smartcube can be configured to
 - track the time you work on your projects (Toogl)
 - trigger any generic webhooks
 
+# User Guide
+Please find the user guide [here](https://flokain.github.io/Smart-Cube/)
+
 # Project Goals
 The Smartcube Project started as an exercise and personal challenge to deliver a polished OpenSource IOT product for real world applications that can be used by anyone, not just tinkers.
 
@@ -29,7 +32,29 @@ To accomplish this vision I set the following goals:
 
 # Setup
 
-# Documentation
+# Testing
+Smart Cube is tested in 2 ways.
+
+# Unit Tests On Device
+The python code depends on platform dependent libraries.
+Because of this unittests must be executed on a device.
+unittests a run on the device. connect via REPL
+and execute
+```
+import unittest
+unittest.main("unittests")
+```
+TODO: #10 seperate unittests that are device independent
+
+# functional testing
+Tests against the webAPI are ran against an operational device.
+at the moment one has to change the host variable in tests/api_test.py
+and then run from the project root dir TODO: #11 parse host as variable to tests 
+```
+pytest
+```
+
+# Rest API Reference
 restapi is openapi conform:
 https://app.swaggerhub.com/apis-docs/flokain/smartcube/v1
 # Contribute
@@ -38,8 +63,6 @@ https://app.swaggerhub.com/apis-docs/flokain/smartcube/v1
 ## Feature requests
 
 ## Development
-
-
 ### Webhook interfaces
 ### Hardware Trigger
 ### core components
