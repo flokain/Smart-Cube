@@ -1,5 +1,5 @@
 #!/usr/bin/env micropython
-import logging, gc
+import logging
 from sys import platform
 import uasyncio as asyncio
 
@@ -25,9 +25,8 @@ class Cube:
                     handler.run()
                 except (OSError, KeyError):
                     log.error("no handler ran for side".format(id))
-            
+
             await asyncio.sleep(1)
-        
 
     def __init__(self):
         """ sets up all components which puts the following
@@ -39,14 +38,16 @@ class Cube:
         self.board = Board(platform)
         self.server = Server(self.board)
         self.sensor = BallSwitchSensor(
-            
+
         )
-        
+
         asyncio.get_event_loop().create_task(self.detectAndHandleSensorChange())
+
+    def run(self):
+        log.debug("start webserver")
+        self.server.run(host="0.0.0.0", port=80)
 
 
 if __name__ == "__main__":
-    log.debug("start webserver")
     c = Cube()
-    c.server.run(host="0.0.0.0", port=80)
-
+    c.run()
