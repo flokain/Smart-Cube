@@ -83,7 +83,8 @@ via the pymakr vscode extension
     git clone --recurse-submodules -j8 https://github.com/flokain/Smart-Cube
     ```
 
-3. cd into the repository and run micropy. NOTE: this command results in an error, but it works until the point where the stubs for intellisense are installed. TODO: #15 fix json parse error when running micropy
+3. cd into the repository and run micropy.
+   > :warning: This **command results in an error**, but it works until the point where the stubs for intellisense are installed. TODO: #15 fix json parse error when running micropy
 
     ```bash
     cd Smart-Cube
@@ -105,7 +106,7 @@ If your device is not connected at /dev/ttyUSB0 set the SMART_CUBE_PATH environm
     ```
 now you can:
 - [Build and deploy](#build-and-deploy) the firmware
-- via pymakr (vscode command plalette or button in lower status bar![pymakr_bar](docs/images/pymakr_bar.png)
+- via pymakr (vscode command plalette or button in lower status bar) ![pymakr_bar](docs/images/pymakr_bar.png)
   -  connect to devices micropython cli REPL
   - upload files such as new scripts,
 - use intellisense including device libraries like `machine` in the code base in `./src`
@@ -113,7 +114,7 @@ now you can:
 ## Build And Deploy Firmware
 the following script uses docker to build the firmware, which includes the `smartcube` module in `./src` and all dependencies from `requirements.txt`. It then deploys the Firmware on the device. This is neccesary to save ram. frozen sourcecode (=firmware) is directly accessed and not loaded in to ram. 
 
-> :warning: Be sure to **set SMART_CUBE_PATH if** your device is **not connected at /dev/ttyUSB0**
+> :warning: Be sure to **set SMART_CUBE_PATH from [Setup Development Environment Step 6](#setup-development-environment)** if your device is **not connected at /dev/ttyUSB0**
 and **disconnect REPL** (pymakr > disconnect) from the device. Otherwise Deployment will fail
 
 ```
