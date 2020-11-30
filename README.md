@@ -62,23 +62,28 @@ https://app.swaggerhub.com/apis-docs/flokain/smartcube/v1
 ## Bug reports
 ## Feature requests
 
-## Development
+# Development
 TODO
 Developing for a microcontroller can be quite a challenge. The intention of this section is to provide a development environment that is as quickly as possible to setup and convenient as can be, requiring little to non knowledge of the microptython firmware building process for contributing.
 If you choose to use your own environment feel free to use parts from mine and share ideas for making it better in an issue.
-### setup development environment
+## setup development environment
 The development environment looks like this:
 Using VsCode you have code completion for micropython and the used thirdparty libraries installed by micropython-cli
 via the pymakr vscode extension
 
-1. install vscode
-2. clone repo with sumbodules
+
+1. Prerequesites
+   1. install vscode
+   2. install docker
+   3. install git
+   
+2. clone repo with sumbodules, because we need to build our own firmware from the micropython repository
 
     ```bash
     git clone --recurse-submodules -j8 https://github.com/flokain/Smart-Cube
     ```
 
-3. cd into the repository and run micropy. NOTE: this command results in an error. but it works until the point where the stubs for intellisense are installed. TODO: #15 fix json parse error when running micropy
+3. cd into the repository and run micropy. NOTE: this command results in an error, but it works until the point where the stubs for intellisense are installed. TODO: #15 fix json parse error when running micropy
 
     ```bash
     cd Smart-Cube
@@ -91,26 +96,46 @@ via the pymakr vscode extension
     code .
     ```
 
-5. [activate recommended vscode extensions](https://stackoverflow.com/questions/35929746/automatically-install-extensions-in-vs-code). TODO: #13 write how to activate all recommended extensions
-6. check where at which path your device is mounted.`ls -la /dev/ttyUSB*` The default is /dev/ttyUSB0. If multiple are listed. try them out until one works ;)
-   1. If your device is not connected at /dev/ttyUSB0 run the        following command and substitute /dev/ttyUSB0 with your device. *(you have to set the environment variable as it will be used in the buildscripts too.)* TODO: #14 automate this somehow
-
+5. [activate recommended vscode extensions](https://stackoverflow.com/questions/35929746/automatically-install-extensions-in-vs-code). TODO: #13 write how to activate all recommended extensions automatically
+6. check at which path the device is mounted. `ls -la /dev/ttyUSB*` The default is /dev/ttyUSB0. If multiple are listed. try them out until one works ;)
+If your device is not connected at /dev/ttyUSB0 set the SMART_CUBE_PATH environment variable with the correct path and change the pymakr.conf file 
     ```bash
-    export SMART_CUBE_PATH=/dev/ttyUSB0
+    export SMART_CUBE_PATH=/dev/ttyUSB1
     sed -i 's@"address": .*@"address": "'$SMART_CUBE_PATH'",@g' pymakr.conf
     ```
+now you can:
+- [Build and deploy](#build-and-deploy) the firmware
+- via pymakr (vscode command plalette or button in lower status bar![pymakr_bar](docs/images/pymakr_bar.png)
+  -  connect to devices micropython cli REPL
+  - upload files such as new scripts,
+- use intellisense including device libraries like `machine` in the code base in `./src`
 
-7. Prepare the build tool chain. From the project root run
+## Build And Deploy Firmware
+the following script uses docker to build the firmware, which includes the `smartcube` module in `./src` and all dependencies from `requirements.txt`. It then deploys the Firmware on the device. This is neccesary to save ram. frozen sourcecode (=firmware) is directly accessed and not loaded in to ram. 
 
-   ```
-   make -C misc/micropython/mpy-cross/
-   ```
+> :warning: Be sure to **set SMART_CUBE_PATH if** your device is **not connected at /dev/ttyUSB0**
+and **disconnect REPL** (pymakr > disconnect) from the device. Otherwise Deployment will fail
 
-8. The environment is now setup for development.
+```
+ ./build_deploy.sh 
+```
+if for some reason this command crashes, try to clean the whole build, whipe the device flash and restart form scratch via
+```
+ ./clean_build_deploy.sh
+```
 
+The Firmware build ommits the boot and main scripts and other files, which are all under `./src` but not in `./src`
+## Deploy scripts and static files
+To deploy those use the vscode command palette: `pymakr > Upload Project` or the Upload button from the lower status bar ![pymakr_bar](docs/images/pymakr_bar.png)
 
-### Webhook interfaces
+afterwards the cube will reboot and launch in operational mode.
+you can now go on an
+- [run functional tests](#functional-testing) against the cube
+- configure
+- use
+
 ### Hardware Trigger
+
 ### core components
 
 

@@ -2,9 +2,6 @@
 device=${SMART_CUBE_PATH:='/dev/ttyUSB0' }
 device_group=$(stat -c "%g" $device)
 
-echo $device
-echo $device_group
-
 docker run --rm -v $PWD/misc/micropython:/micropython -u 1000 -w /micropython/mpy-cross/ larsks/esp-open-sdk make
 docker run --rm -v $PWD/misc/micropython:/micropython -u 1000 -w /micropython/ports/esp8266/ larsks/esp-open-sdk make clean
 docker run --rm -v $PWD/misc/micropython:/micropython -u 1000 -w /micropython/ports/esp8266/ larsks/esp-open-sdk make
