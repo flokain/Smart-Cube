@@ -1,4 +1,4 @@
 logging
-micropython-wifimanager
 unittest
 urequests
+uasyncio
