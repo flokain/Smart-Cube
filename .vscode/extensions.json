@@ -4,6 +4,8 @@
     // List of extensions which should be recommended for users of this workspace.
     "recommendations": [
         "ms-python.python", // micropy-cli: required for vscode micropython integrations
-        "VisualStudioExptTeam.vscodeintellicode" // micropy-cli: optional for advanced intellisense
+        "VisualStudioExptTeam.vscodeintellicode", // micropy-cli: optional for advanced intellisense
+        "pycom.pymakr", // smart-cube: optional for convenience button for repl connection, up and downloading of files 
+        "github.vscode-pull-request-github", // smart-cube: recommended for quickly filing issues
     ]
 }

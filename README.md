@@ -63,6 +63,52 @@ https://app.swaggerhub.com/apis-docs/flokain/smartcube/v1
 ## Feature requests
 
 ## Development
+TODO
+Developing for a microcontroller can be quite a challenge. The intention of this section is to provide a development environment that is as quickly as possible to setup and convenient as can be, requiring little to non knowledge of the microptython firmware building process for contributing.
+If you choose to use your own environment feel free to use parts from mine and share ideas for making it better in an issue.
+### setup development environment
+The development environment looks like this:
+Using VsCode you have code completion for micropython and the used thirdparty libraries installed by micropython-cli
+via the pymakr vscode extension
+
+1. install vscode
+2. clone repo with sumbodules
+
+    ```bash
+    git clone --recurse-submodules -j8 https://github.com/flokain/Smart-Cube
+    ```
+
+3. cd into the repository and run micropy. NOTE: this command results in an error. but it works until the point where the stubs for intellisense are installed. TODO: #15 fix json parse error when running micropy
+
+    ```bash
+    cd Smart-Cube
+    micropy
+    ```
+
+4. start vscode in the repos root folder
+
+    ```bash
+    code .
+    ```
+
+5. [activate recommended vscode extensions](https://stackoverflow.com/questions/35929746/automatically-install-extensions-in-vs-code). TODO: #13 write how to activate all recommended extensions
+6. check where at which path your device is mounted.`ls -la /dev/ttyUSB*` The default is /dev/ttyUSB0. If multiple are listed. try them out until one works ;)
+   1. If your device is not connected at /dev/ttyUSB0 run the        following command and substitute /dev/ttyUSB0 with your device. *(you have to set the environment variable as it will be used in the buildscripts too.)* TODO: #14 automate this somehow
+
+    ```bash
+    export SMART_CUBE_PATH=/dev/ttyUSB0
+    sed -i 's@"address": .*@"address": "'$SMART_CUBE_PATH'",@g' pymakr.conf
+    ```
+
+7. Prepare the build tool chain. From the project root run
+
+   ```
+   make -C misc/micropython/mpy-cross/
+   ```
+
+8. The environment is now setup for development.
+
+
 ### Webhook interfaces
 ### Hardware Trigger
 ### core components
