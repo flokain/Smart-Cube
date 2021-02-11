@@ -19,8 +19,8 @@ cp -r $PWD/src/smartcube $PWD/misc/micropython/ports/esp8266/modules/
 
 
 docker run --rm -v $PWD/misc/micropython:/micropython -u 1000 -w /micropython/mpy-cross/ larsks/esp-open-sdk make
-docker run --rm -v $PWD/misc/micropython:/micropython -u 1000 -w /micropython/ports/esp8266/ larsks/esp-open-sdk make clean
-docker run --rm -v $PWD/misc/micropython:/micropython -u 1000 -w /micropython/ports/esp8266/ larsks/esp-open-sdk make
+sudo rm -rf $PWD/misc/micropython/ports/esp8266/build-GENERIC
+docker run --rm -v $PWD/misc/micropython:/micropython -u 1000 -w /micropython/ports/esp8266/ larsks/esp-open-sdk make AXTLS_DEFS_EXTRA="-Dabort=abort_ -DRT_MAX_PLAIN_LENGTH=1024 -DRT_EXTRA=8192"
 docker run --rm --device=$device -v $PWD/misc/micropython:/micropython -u 1000:$device_group  -w /micropython/ports/esp8266/ larsks/esp-open-sdk make PORT=$device BAUD=460800 erase
 docker run --rm --device=$device -v $PWD/misc/micropython:/micropython -u 1000:$device_group  -w /micropython/ports/esp8266/ larsks/esp-open-sdk make PORT=$device BAUD=460800 deploy
 
