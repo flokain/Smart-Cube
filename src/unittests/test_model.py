@@ -1,5 +1,5 @@
 import unittest
-from smartcube.models import Wifi, Model, Handler
+from smartcube.models import Model, Handler
 
 
 class SerializeTestcase(unittest.TestCase):
