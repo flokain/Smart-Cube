@@ -10,6 +10,14 @@ Whenever a event happens it triggers all subscripted handlers.
 4. extract to api/server/
 5. check changes and commit
 
+## memory
+free memory in idle state with only handler, httprequest and wifi model 15
+free memory with api v1 and all models loaded: 9 Kb 16
+
+## device not reachable via ttyUSB after flashing
+also led switches off after reboot.
+erase and flash the firmware with a baudrate of 115200 to fix this
+disconnect device after flash and try again
 ## testing
 if I need classes from src folder in the functional testing i need to make
 ```bash
