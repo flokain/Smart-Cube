@@ -39,7 +39,7 @@ class Model(object):
     # value is json key in definition.
     attribute_map = {}
 
-    database = "database/smartcube_database"
+    database = "/database/smartcube_database"
 
     @classmethod
     def from_dict(cls, dikt):
@@ -138,7 +138,7 @@ class Model(object):
         for k, v in cls.db.items(basekey):
             if basekey in k:
                 re = cls.from_dict(json.loads(v.decode()))
-                re.id = int(k.decode().split(basekey)[1])
+                re.id = int(k.decode().split(basekey.decode())[1])
                 lst.append(re)
             else:
                 break
@@ -186,7 +186,9 @@ class Model(object):
     @classmethod
     @database_operation
     def _delete(cls, key):
-        del cls.db[(cls.__name__ + str(key)).encode()]
+        k = cls.__name__ + str(key)
+        log.debug("deleting key {}".format(k))
+        del cls.db[k.encode()]
 
     def delete(self, key):
         self._delete(self, key)

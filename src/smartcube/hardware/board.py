@@ -1,4 +1,7 @@
-import network, os, machine, gc
+import network
+import os
+import machine
+import gc
 import logging
 from wifi_manager import WifiManager
 
