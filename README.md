@@ -100,13 +100,11 @@ Via the pymakr vscode extension you can then upload and download files open a py
 5. [activate recommended vscode extensions](https://stackoverflow.com/questions/35929746/automatically-install-extensions-in-vs-code). 
     TODO: #13 write how to activate all recommended extensions automatically
 6. check at which path the device is mounted. `ls -la /dev/ttyUSB*` The default is /dev/ttyUSB0. If multiple are listed. try them out until one works ;)
-  If your device is not connected at /dev/ttyUSB0 set the SMART_CUBE_PATH environment variable with the correct path and change the pymakr.conf file 
+  
+    - If your device is not connected at /dev/ttyUSB0 set the SMART_CUBE_PATH environment variable with the correct path and change the pymakr.conf file `export SMART_CUBE_PATH=/dev/ttyUSB0`
+  
 
-   ```bash
-   export SMART_CUBE_PATH=/dev/ttyUSB1
-   sed -i 's@"address": .*@"address": "'$SMART_CUBE_PATH'",@g' pymakr.conf
-   ```
-  now you can:
+Now you can:
 - [Build and deploy](#build-and-deploy) the firmware
 - via pymakr (vscode command plalette or button in lower status bar) ![pymakr_bar](docs/images/pymakr_bar.png)
   -  connect to devices micropython cli REPL

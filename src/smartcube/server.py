@@ -1,6 +1,7 @@
 import logging
 import ujson as json
-from tinyweb.server import webserver, HTTPException
+from tinyweb.server import webserver
+from tinyweb.server import HTTPException
 
 from smartcube.hardware.board import Board
 from smartcube.models.handler import Handler
@@ -121,7 +122,7 @@ def Server(board: Board) -> webserver:
 
         @classmethod
         def delete(cls, data, id):
-            log.debug("deleting object with key".format(id))
+            log.debug("deleting object with key {}".format(id))
             try:
                 cls.Meta.model._delete(id)
                 return id
