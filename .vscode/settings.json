@@ -6,7 +6,7 @@
         ".micropy/BradenM-micropy-stubs-e1b8ce6/frozen",
         ".micropy/BradenM-micropy-stubs-c89b5ef/stubs",
         ".micropy/smartcube",
-        "misc/tinyweb/tinyweb",
+        "misc/tinyweb",
         "misc/micropython-wifimanager/wifi_manager",
     ],
     "python.autoComplete.typeshedPaths": [
@@ -14,7 +14,7 @@
         ".micropy/BradenM-micropy-stubs-e1b8ce6/frozen",
         ".micropy/BradenM-micropy-stubs-c89b5ef/stubs",
         ".micropy/smartcube",
-        "misc/tinyweb/tinyweb",
+        "misc/tinyweb",
         "misc/micropython-wifimanager/wifi_manager",
     ],
     "python.analysis.typeshedPaths": [
@@ -22,7 +22,7 @@
         ".micropy/BradenM-micropy-stubs-e1b8ce6/frozen",
         ".micropy/BradenM-micropy-stubs-c89b5ef/stubs",
         ".micropy/smartcube",
-        "misc/tinyweb/tinyweb",
+        "misc/tinyweb",
         "misc/micropython-wifimanager/wifi_manager",
     ],
     "python.linting.pylintEnabled": false,
