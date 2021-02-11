@@ -63,14 +63,14 @@ https://app.swaggerhub.com/apis-docs/flokain/smartcube/v1
 ## Feature requests
 
 # Development
-TODO
-Developing for a microcontroller can be quite a challenge. The intention of this section is to provide a development environment that is as quickly as possible to setup and convenient as can be, requiring little to non knowledge of the microptython firmware building process for contributing.
-If you choose to use your own environment feel free to use parts from mine and share ideas for making it better in an issue.
-## setup development environment
-The development environment looks like this:
-Using VsCode you have code completion for micropython and the used thirdparty libraries installed by micropython-cli
-via the pymakr vscode extension
+Developing for a microcontroller can be quite a challenge. The intention of this section is to provide a development environment that is as quickly as possible to setup and convenient as can be, requiring little to none knowledge of the microptython firmware building process for contributing.
+If you choose to use your own environment feel free to use parts from mine and share ideas for making it better by filing an issue pr pull request.
 
+## Setting up the development environment
+
+The development environment looks like this:
+Using VsCode you have code completion for micropython and thirdparty libraries which were initially configured with micropython-cli.
+Via the pymakr vscode extension you can then upload and download files open a python interpreter on the device and other management stuff. unfortunately i had problems with the pymakr extension on several occasions, whe vs code was upgraded. please refer to [troubleshooting](#Troubelshooting the dev environment setup)
 
 1. Prerequesites
    1. install vscode
@@ -97,21 +97,48 @@ via the pymakr vscode extension
     code .
     ```
 
-5. [activate recommended vscode extensions](https://stackoverflow.com/questions/35929746/automatically-install-extensions-in-vs-code). TODO: #13 write how to activate all recommended extensions automatically
+5. [activate recommended vscode extensions](https://stackoverflow.com/questions/35929746/automatically-install-extensions-in-vs-code). 
+    TODO: #13 write how to activate all recommended extensions automatically
 6. check at which path the device is mounted. `ls -la /dev/ttyUSB*` The default is /dev/ttyUSB0. If multiple are listed. try them out until one works ;)
-If your device is not connected at /dev/ttyUSB0 set the SMART_CUBE_PATH environment variable with the correct path and change the pymakr.conf file 
-    ```bash
-    export SMART_CUBE_PATH=/dev/ttyUSB1
-    sed -i 's@"address": .*@"address": "'$SMART_CUBE_PATH'",@g' pymakr.conf
-    ```
-now you can:
+  If your device is not connected at /dev/ttyUSB0 set the SMART_CUBE_PATH environment variable with the correct path and change the pymakr.conf file 
+
+   ```bash
+   export SMART_CUBE_PATH=/dev/ttyUSB1
+   sed -i 's@"address": .*@"address": "'$SMART_CUBE_PATH'",@g' pymakr.conf
+   ```
+  now you can:
 - [Build and deploy](#build-and-deploy) the firmware
 - via pymakr (vscode command plalette or button in lower status bar) ![pymakr_bar](docs/images/pymakr_bar.png)
   -  connect to devices micropython cli REPL
   - upload files such as new scripts,
 - use intellisense including device libraries like `machine` in the code base in `./src`
 
-## Build And Deploy Firmware
+### Troubleshooting the dev environment setup
+
+### cannot connect to device
+
+Sometimes vscode upgrades break pymaker, and that was almost always the reason why the setup failed. for that reason find below the latest vscode and pymakr version that have been testet for this setup.
+
+- vscode 1.52.1
+- pymakr 1.7.1
+
+### build fails
+
+seeing something like
+
+```
+Connecting...
+
+A fatal error occurred: Failed to connect to ESP8266
+make: *** [Makefile:198: deploy] Error 2
+```
+
+most certainly means you have an open connection to the device. Make sure that the pymakr console is disconnected: ![1613074125286](docs/images/disconnected.png)
+
+
+
+# Build And Deploy Firmware
+
 the following script uses docker to build the firmware, which includes the `smartcube` module in `./src` and all dependencies from `requirements.txt`. It then deploys the Firmware on the device. This is neccesary to save ram. frozen sourcecode (=firmware) is directly accessed and not loaded in to ram. 
 
 > :warning: Be sure to **set SMART_CUBE_PATH from [Setup Development Environment Step 6](#setup-development-environment)** if your device is **not connected at /dev/ttyUSB0**
