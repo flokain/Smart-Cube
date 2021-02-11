@@ -148,3 +148,6 @@ misc/*.py
 src/*.json
 src/test/snippets.py
 src/unittests/snippets.py
+api/python-client/**
+api/python-server/**
+misc/**
