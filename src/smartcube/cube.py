@@ -18,11 +18,16 @@ class Cube:
         """ detect change of the sensor, read the current side up
             and trigger the coresponding handler
         """
+        #TODO: #21 refactor to sth like publisher subscriber pattern. not necessary because only one subscriber
         while True:
             if self.sensor.has_changed:
                 try:
-                    handler = Handler.from_config(str(self.sensor.side_up))
-                    handler.run()
+                    # by conevtion the name of the events are defined int the
+                    # Sensor class and must be reflected in the event_id field of the handler class
+                    event_id = self.sensor.recent_event
+                    handlers = Handler.get_all(event_id=event_id)
+                    for h in handlers:
+                        h.run(()
                 except (OSError, KeyError):
                     log.error("no handler ran for side".format(id))
 
@@ -33,7 +38,7 @@ class Cube:
             functions in the asyncio event loop
             1. sensor triggered handling
             2. network detection and login
-            3. starting WebServer 
+            3. starting WebServer
         """
         self.board = Board(platform)
         self.server = Server(self.board)
