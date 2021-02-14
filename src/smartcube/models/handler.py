@@ -5,7 +5,6 @@ import ujson as json
 from smartcube import util
 from smartcube.models.base_model import Model, database_operation
 from smartcube.models.http_request import HttpRequest
-from smartcube.models.event_id import EventId
 
 log = logging.getLogger(__name__)
 
@@ -18,7 +17,7 @@ class Handler(Model):
         :param id: The id of this Handler.  # noqa: E501
         :type id: str
         :param event_id: The event_id of this Handler.  # noqa: E501
-        :type event_id: EventId
+        :type event_id: str
         :param request: The request of this Handler.  # noqa: E501
         :type request: HttpRequest
         :param expected_response_code: The expected_response_code of this Handler.  # noqa: E501
@@ -82,7 +81,7 @@ class Handler(Model):
 
 
         :return: The event_id of this Handler.
-        :rtype: EventId
+        :rtype: str
         """
         return self._event_id
 
@@ -92,7 +91,7 @@ class Handler(Model):
 
 
         :param event_id: The event_id of this Handler.
-        :type event_id: EventId
+        :type event_id: str
         """
 
         self._event_id = event_id
@@ -174,8 +173,6 @@ class Handler(Model):
     @database_operation
     def get_all(cls, event_id=None):
         basekey = cls.__name__.encode()
-        if event_id is not None and not EventId.isEvent(event_id):
-            raise KeyError("unkown event-id")
         lst = []
         for k, v in cls.db.items(basekey):
             if basekey in k:
