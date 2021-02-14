@@ -47,18 +47,21 @@ class BallSwitchSensor:
             self._side_up_tick_ms = time.ticks_ms()
             log.debug("detecting new temporary side: {}".format(side_up_new))
 
-
-
         if (
-            time.ticks_diff(time.ticks_ms(),self._side_up_tick_ms)
+            time.ticks_diff(time.ticks_ms(), self._side_up_tick_ms)
             > self._change_delay_ms and
             self._temporary_side_up != self._last_side_up
         ):
             log.debug(
-                "temporary side {} is now accepted.".format(self._temporary_side_up)
+                "temporary side {} is now accepted.".format(
+                    self._temporary_side_up)
             )
             self._last_side_up = self._temporary_side_up
+            self.recent_event = self.side_up()
             return True
+        
+        # TODO: #23 implement shaking event
+        # TODO: #22 implement change event
 
         return False
 
