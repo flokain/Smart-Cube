@@ -144,6 +144,7 @@ def Server(board: Board) -> webserver:
 
         @classmethod
         def get(cls, data):
+            # TODO: #24 stream data rather than gathering all objects. because this will fill up memory to quickly
             return json.dumps(Model.JSONEncodeModelList(cls.Meta.model.get_all()))
 
         @classmethod
@@ -199,7 +200,6 @@ def Server(board: Board) -> webserver:
     # TODO: #17 update tiny web for any amount of params
     app.add_resource(WifiViewParametrized, "/api/v1/system/config/wifis/<id>")
     app.add_resource(WifiView, "/api/v1/system/config/wifis")
-
     app.add_resource(UserView, "/api/v1/users")
     app.add_resource(UserView, "/api/v1/users/<Userid>")
     log.debug("end configure restapi")
