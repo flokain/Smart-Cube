@@ -1,4 +1,5 @@
 #!/usr/bin/env micropython
+
 import logging
 from sys import platform
 import uasyncio as asyncio
@@ -9,7 +10,6 @@ from smartcube.server import Server
 from smartcube.models.handler import Handler
 
 log = logging.getLogger(__name__)
-# PINs available for use
 
 
 class Cube:
@@ -18,7 +18,7 @@ class Cube:
         """ detect change of the sensor, read the current side up
             and trigger the coresponding handler
         """
-        #TODO: #21 refactor to sth like publisher subscriber pattern. not necessary because only one subscriber
+        # TODO: #21 refactor to sth like publisher subscriber pattern. not necessary because only one subscriber
         while True:
             if self.sensor.has_changed:
                 try:
@@ -28,8 +28,11 @@ class Cube:
                     handlers = Handler.get_all(event_id=event_id)
                     for h in handlers:
                         h.run(()
-                except (OSError, KeyError):
-                    log.error("no handler ran for side".format(id))
+                    if len(handlers) == 0:
+                        log.info(
+                            "no handlers found for event {}".format(event_id))
+                except OSError as e:
+                    log.error("no handler ran for side. Error was", e)
 
             await asyncio.sleep(1)
 
@@ -40,9 +43,9 @@ class Cube:
             2. network detection and login
             3. starting WebServer
         """
-        self.board = Board(platform)
-        self.server = Server(self.board)
-        self.sensor = BallSwitchSensor(
+        self.board=Board(platform)
+        self.server=Server(self.board)
+        self.sensor=BallSwitchSensor(
 
         )
 
@@ -54,5 +57,5 @@ class Cube:
 
 
 if __name__ == "__main__":
-    c = Cube()
+    c=Cube()
     c.run()
