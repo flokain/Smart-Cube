@@ -19,7 +19,7 @@ class SerializeTestcase(unittest.TestCase):
         c = Handler.from_dict(t)
         assert t == Model.JSONEncodeModel(c)
 
-    def test_fail_malformed_input_serialiye_Handler(self):
+    def test_fail_malformed_input_serialize_Handler(self):
         t = {
             "THIS_DOES_NOT EXIST": {
                 "uri": "https://www.toggl.com/api/v8/time_entries/start",
@@ -34,3 +34,6 @@ class SerializeTestcase(unittest.TestCase):
         }
         with self.assertRaises(KeyError):
             Handler.from_dict(t)
+    
+    def test_get_and_execute_handler_by_event_name(self):
+        assert False
