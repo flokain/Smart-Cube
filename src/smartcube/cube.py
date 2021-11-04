@@ -1,4 +1,5 @@
 #!/usr/bin/env micropython
+
 import logging
 from sys import platform
 import uasyncio as asyncio
@@ -9,7 +10,6 @@ from smartcube.server import Server
 from smartcube.models.handler import Handler
 
 log = logging.getLogger(__name__)
-# PINs available for use
 
 
 class Cube:
@@ -18,6 +18,7 @@ class Cube:
         """ detect change of the sensor, read the current side up
             and trigger the coresponding handler
         """
+        # TODO: #21 refactor to sth like publisher subscriber pattern. not necessary because only one subscriber
         while True:
             if self.sensor.has_changed:
                 try:
@@ -33,11 +34,11 @@ class Cube:
             functions in the asyncio event loop
             1. sensor triggered handling
             2. network detection and login
-            3. starting WebServer 
+            3. starting WebServer
         """
-        self.board = Board(platform)
-        self.server = Server(self.board)
-        self.sensor = BallSwitchSensor(
+        self.board=Board(platform)
+        self.server=Server(self.board)
+        self.sensor=BallSwitchSensor(
 
         )
 
@@ -49,5 +50,5 @@ class Cube:
 
 
 if __name__ == "__main__":
-    c = Cube()
+    c=Cube()
     c.run()

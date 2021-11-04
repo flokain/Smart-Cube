@@ -37,3 +37,6 @@ class SerializeTestcase(unittest.TestCase):
         }
         with self.assertRaises(KeyError):
             Handler.from_dict(t)
+
+    def test_get_and_execute_handler_by_event_name(self):
+        assert False

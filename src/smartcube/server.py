@@ -1,6 +1,7 @@
 import logging
 import ujson as json
-from tinyweb.server import webserver, HTTPException
+from tinyweb.server import webserver
+from tinyweb.server import HTTPException
 
 from smartcube.hardware.board import Board
 from smartcube.models.handler import Handler
@@ -121,7 +122,7 @@ def Server(board: Board) -> webserver:
 
         @classmethod
         def delete(cls, data, id):
-            log.debug("deleting object with key".format(id))
+            log.debug("deleting object with key {}".format(id))
             try:
                 cls.Meta.model._delete(id)
                 return id
@@ -143,6 +144,7 @@ def Server(board: Board) -> webserver:
 
         @classmethod
         def get(cls, data):
+            # TODO: #24 stream data rather than gathering all objects. because this will fill up memory to quickly
             return json.dumps(Model.JSONEncodeModelList(cls.Meta.model.get_all()))
 
         @classmethod
@@ -198,7 +200,6 @@ def Server(board: Board) -> webserver:
     # TODO: #17 update tiny web for any amount of params
     app.add_resource(WifiViewParametrized, "/api/v1/system/config/wifis/<id>")
     app.add_resource(WifiView, "/api/v1/system/config/wifis")
-
     app.add_resource(UserView, "/api/v1/users")
     app.add_resource(UserViewParametrized, "/api/v1/users/<Userid>")
     log.debug("end configure restapi")
