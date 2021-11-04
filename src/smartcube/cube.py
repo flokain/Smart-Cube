@@ -21,7 +21,7 @@ class Cube:
         while True:
             if self.sensor.has_changed:
                 try:
-                    handler = Handler.from_config(str(self.sensor.side_up))
+                    handler = Handler.get_by_id(str(self.sensor.side_up))
                     handler.run()
                 except (OSError, KeyError):
                     log.error("no handler ran for side".format(id))

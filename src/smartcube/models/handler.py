@@ -1,6 +1,7 @@
 import logging
 from urequests import request
 import ujson as json
+import gc
 
 from smartcube import util
 from smartcube.models.base_model import Model, database_operation
@@ -144,14 +145,16 @@ class Handler(Model):
         self._expected_response_code = expected_response_code
 
     def run(self) -> bool:
+        log.debug("free memory: %s", gc.mem_free())
         log.info("runing http request handler: {}".format(
             self._request.__dict__))
-        r = self._request
-        response = request(method=r.method,
-                           url=r.uri,
-                           json=r.json,
-                           headers=r.headers)
-
+        log.debug("free memory: %s", gc.mem_free())
+        gc.collect()
+        response = request(method=self._request.method,
+                           url=self._request.uri,
+                           data=self._request.payload,
+                           headers=self._request.headers)
+        log.debug("free memory: %s", gc.mem_free())
         try:
             if self._expected_response_code is not None:
                 assert response.status_code == self._expected_response_code
@@ -170,6 +173,7 @@ class Handler(Model):
                 self._expected_response,
             )
 
+    #TODO:
     @classmethod
     @database_operation
     def get_all(cls, event_id=None):

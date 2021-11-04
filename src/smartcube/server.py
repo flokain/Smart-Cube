@@ -200,7 +200,7 @@ def Server(board: Board) -> webserver:
     app.add_resource(WifiView, "/api/v1/system/config/wifis")
 
     app.add_resource(UserView, "/api/v1/users")
-    app.add_resource(UserView, "/api/v1/users/<Userid>")
+    app.add_resource(UserViewParametrized, "/api/v1/users/<Userid>")
     log.debug("end configure restapi")
     log.debug("end configure webserver")
     return app

@@ -1,5 +1,5 @@
-
 # Smartcube
+
 Smartcube aims to be the IOT Cube anyone can **a**fford, **b**uild and **c**onfigure.
 
 Smartcube is a physical die, which houses electronics to detect when the die is tilted and which side is facing up. It then triggers events over the internet via its wifi connection.
@@ -26,13 +26,15 @@ To accomplish this vision I set the following goals:
 | clean, extensible software architecture | At least one component was contributed by someone else. The architecture is simple and easy to understand. It encourages contributers to write and submit their own software components and find new applications for the Smartcube. |
 
 
+# Requirements
+micropython 1.12 (not tested with 1.17)
 
-
-# requirements
+2.4 ghz wifi network
 
 # Setup
 
 # Testing
+
 Smart Cube is tested in 2 ways.
 
 # Unit Tests On Device
@@ -40,6 +42,7 @@ The python code depends on platform dependent libraries.
 Because of this unittests must be executed on a device.
 unittests a run on the device. connect via REPL
 and execute
+
 ```
 import unittest
 unittest.main("unittests")
@@ -100,29 +103,29 @@ Via the pymakr vscode extension you can then upload and download files open a py
 5. [activate recommended vscode extensions](https://stackoverflow.com/questions/35929746/automatically-install-extensions-in-vs-code). 
     TODO: #13 write how to activate all recommended extensions automatically
 6. check at which path the device is mounted. `ls -la /dev/ttyUSB*` The default is /dev/ttyUSB0. If multiple are listed. try them out until one works ;)
-  If your device is not connected at /dev/ttyUSB0 set the SMART_CUBE_PATH environment variable with the correct path and change the pymakr.conf file 
+    If your device is not connected at /dev/ttyUSB0 set the SMART_CUBE_PATH environment variable with the correct path and change the pymakr.conf file 
 
    ```bash
    export SMART_CUBE_PATH=/dev/ttyUSB1
    sed -i 's@"address": .*@"address": "'$SMART_CUBE_PATH'",@g' pymakr.conf
    ```
-  now you can:
+    now you can:
 - [Build and deploy](#build-and-deploy) the firmware
 - via pymakr (vscode command plalette or button in lower status bar) ![pymakr_bar](docs/images/pymakr_bar.png)
   -  connect to devices micropython cli REPL
   - upload files such as new scripts,
 - use intellisense including device libraries like `machine` in the code base in `./src`
 
-### Troubleshooting the dev environment setup
+# Troubleshooting
 
-### cannot connect to device
+## Cannot connect to device
 
 Sometimes vscode upgrades break pymaker, and that was almost always the reason why the setup failed. for that reason find below the latest vscode and pymakr version that have been testet for this setup.
 
-- vscode 1.52.1
-- pymakr 1.7.1
+- vscode 1.61.2
+- pymakr 1.1.16
 
-### build fails
+## Build fails
 
 seeing something like
 
@@ -135,7 +138,18 @@ make: *** [Makefile:198: deploy] Error 2
 
 most certainly means you have an open connection to the device. Make sure that the pymakr console is disconnected: ![1613074125286](docs/images/disconnected.png)
 
+## Functional Tests fail when executed together
 
+Tthe reason might be that the wifi probing task gets blocked by many flash IOs and resets the connection: https://www.esp32.com/viewtopic.php?t=6800&p=29472
+
+## Device is restarting in unpredictable ways
+
+There are multiple reasons for that. follow the guidline to narrow it down and eventually fix it.
+
+1. Check if the device is trying to connect to a 5ghz wifi. this is not supported by the ESP8266. Sometimes it runs in the hardcoded connection timeout of the chip, which is 10 seconds. sometimes it will get a connection but reset itself again. connect to a 2.4 ghz network to verify. if the problem persists go to step 2.
+
+2. Check if the device has a reliable power source. some operations like connecting to the wifi drain so much power that in combination with crapy usb cables or power supplies the voltage drop may get
+3. check if the device has enough free memory. the message `bcn_timout,ap_probe_send_start` before a restart indicates that the device is running out of memory.
 
 # Build And Deploy Firmware
 

@@ -25,7 +25,7 @@ class Resourcetesting():
             "GET", f"{self.path}/1", headers=headers
         )
         assert response.ok
-
+    #TODO test with generating function.
     def test_get_resources(self):
         response = requests.request(
             "GET", f"{self.path}", headers=headers
@@ -61,9 +61,10 @@ class Resourcetesting():
         assert get_response.content == post_response.content
 
         # TODO: #18 with postman this works. there must be a problem with the headers..
+        # header  "Content-Type": "application/json" causes this to fail
         delete_response = requests.request(
-            "DELETE", f"{self.path}/{id}", headers=headers
-        )
+            "DELETE", f"{self.path}/{id}"
+            )
         assert delete_response.ok
         get_response = requests.request(
             "GET", f"{self.path}/{id}", headers=headers
