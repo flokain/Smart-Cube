@@ -1,5 +1,8 @@
-import network, os, machine, gc
+import gc
+import os
 import logging
+import network
+import machine
 from wifi_manager import WifiManager
 
 
@@ -17,10 +20,10 @@ class Board:
             for p, d in self.pins.items():
                 machine.Pin(p, machine.Pin.OUT)
 
-        log.debug("free memory: %s",gc.mem_free())
+        log.debug("free memory: %s", gc.mem_free())
         WifiManager.start_managing()
         log.debug("Wifi config loaded")
-        log.debug("free memory: %s",gc.mem_free())
+        log.debug("free memory: %s", gc.mem_free())
 
     @property
     def memory(self):

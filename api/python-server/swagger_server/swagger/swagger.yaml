@@ -1,354 +1,911 @@
 openapi: 3.0.0
+servers:
+  - url: '{protocol}://{ip}/api/v1'
+    description: configure url to point to smartcube
+    variables:
+      ip:
+        default: 192.168.0.156
+        description: ip or url of cube device. make sure to
+      protocol:
+        description: select secure https or unsecure http connection
+        enum:
+          - http
+          - https
+        default: http
 info:
-  title: Smartcube API
-  description: This APIis used to read and configure webhooks to be triggered by the
-    sides of the cube
+  description: >-
+    This is the interactive Documentation of the REST API for the [Smart-Cube](https://github.com/flokain/Smart-Cube) project. Smart-Cube is a physical die, that sends http requests via its wifi connection when tilted. This API is the main interface to the device. It is used by the web frontend for device configuration. Other purposes are automating configuration, embeding it into an ecosystem of smart devices, or integrate it into another user interface. 
+      <h1> Finding the Smart-Cubes Ip address </h1>
+    
+      To interact with the a Smart-Cube you need to **verify that you are in the same network and now its IP address**. Also the network needs to allow the connection, which is not allways the case, since it is an inbound connection within the nework. Right after this section you can set the address of the smartcube, which will then configure the  interactive endpoint documentation below, so you can test the API on your cube directly!
+      <h2>Smart-Cube not reachable</h2>
+      
+      If for some reason you do not know the wifi Smart-Cube is connected to or the IP address it is using. You can always start the cube in **AccesPoint mode by shaking it for 5 seconds.** The cube will then create its own Wifi. Initialy this has the **SSID: Smart-Cube** and **password: Smart-Cube**, but it is recomemended to change this [here](#/System/put_system_config_accesspoint)
+      
+      <h2>AccessPoint not reachable</h2>
+      
+      If you cannot connect to the smart-cubes accesspoint for example you forgot your AccessPoint Password and do not have access to any previously configured wifi, you can **reset the cube by shaking it for 15 seconds**. For security reasons **all previous data will be deleted**. so use this as your last resort.
+      
+     <h1>Authentication </h1> 
+     
+     To use the API you need to authenticate via **HTTP Basic Authentication**. The initial credentials are **username: admin** and **password: Smart-Cube**. Those are the same credentials as for the webui, so if you have changed username and/or password there, be sure to use that. Use the green Authorize button on the right to login when experimenting with the API calls further down.
+      
+  version: v1
+  title: Smart-Cube API
   contact:
     email: flokain11@gmail.com
   license:
     name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: v1
-servers:
-- url: '{protocol}://{ip}/api/v1'
-  description: configure url to point to smartcube
-  variables:
-    ip:
-      description: ip or url of cube device. make sure to
-      default: 192.168.0.156
-    protocol:
-      description: select secure https or unsecure http connection
-      default: http
-      enum:
-      - http
-      - https
-- url: https://virtserver.swaggerhub.com/flokain/smartcube/1.0.0
-  description: mocking server that allways gives you a sampe response
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 tags:
-- name: Handler
-  description: configure the webhooks for the cube.
-- name: State
-  description: get the current State of the cube.
-- name: System
-  description: read, configure and reboot the cube hardware.
+  - name: Handlers
+    description: >-
+      Events and Handlers are the core functionality of Smart-Cube. Here you get and configure handlers for [specific events](#/event-id) such as *cube is tilted to side 1* or *cube is being shaken*. Handlers are preconfigured http requests, that are sent when the event is detected.
+  - name: State
+    description: >-
+      States can be used for informational purpose and as input for automation frameworks. State sources include *cube* which is sensoric-event based information, like the last detected event. *system* includes the operational state of the hardware such as battery life, memory usage, time of operation. `jobs` include asyncronous task, that the system performs at some point, like a reboot, and their state can be retrieved here.
+  - name: System
+    description: >-
+      read, configure the cubes hardware. Add Wifis and reboot the cube.
+  
+  - name: Users
+    description: >-
+      Manage the users with acces to the cube.
+
+
+security:
+  - basicAuth: []
 paths:
-  /state/side:
+  '/cube/state':
     get:
+      summary: get the current state of the cube.
       tags:
-      - State
-      summary: get the current CubeState
-      operationId: state_side_get
+        - State
       responses:
-        "200":
+        '200':
           description: State found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CubeState'
-        "401":
+        '401':
           description: Unauthorized. please login
-        "403":
+        '403':
           description: Forbidden. Permission "State" is required.
-      x-openapi-router-controller: swagger_server.controllers.state_controller
-  /state/System:
+  '/system/state':
     get:
       tags:
-      - State
-      summary: get the current SystemState
-      operationId: state_system_get
+        - State
+      summary: get the current state of the cube underlying system
       responses:
-        "200":
+        '200':
           description: State found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SystemState'
-        "401":
+        '401':
           description: Unauthorized. please login
-        "403":
+        '403':
           description: Forbidden. Permission "State" is required.
-      x-openapi-router-controller: swagger_server.controllers.state_controller
-  /handler/side/{sideId}:
+  '/system/jobs/{job-id}':
     get:
       tags:
-      - Handler
-      summary: get the current Handler for {sideId}
-      operationId: handler_side_side_id_get
+        - State
+      summary: get a job. :D
       parameters:
-      - name: sideId
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          $ref: '#/components/schemas/sideId'
+        - name: job-id
+          required: true
+          in: path
+          schema:
+            $ref: '#/components/schemas/Id'
       responses:
-        "200":
-          description: item found
+        '200':
+          description: OK. Returning job
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Job'
+        '401':
+          description: Unauthorized. please login
+        '403':
+          description: Forbidden. Permission "State" is required
+        '404':
+          description: Not Found. invalid job-id
+  '/system/jobs/{job-id}/state':
+    get:
+      operationId: getJobState
+      tags:
+        - State
+      summary: get the current state of a Job
+      parameters:
+        - name: job-id
+          required: true
+          in: path
+          schema:
+            $ref: '#/components/schemas/Id'
+      responses:
+        '200':
+          description: OK. Returning job
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobState'
+        '401':
+          description: Unauthorized. please login
+        '403':
+          description: Forbidden. Permission "State" is required
+        '404':
+          description: Not Found. invalid job-id
+
+  '/system/jobs':
+    get:
+      tags:
+        - State
+      summary: get the current state of the cube underlying system
+      responses:
+        '200':
+          description: OK. Returning array of jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Job'
+        '401':
+          description: Unauthorized. please login
+        '403':
+          description: Forbidden. Permission "State" is required.
+  
+  
+  '/events/{event-id}/handlers':
+    get:
+      summary: 'get all Handlers for {event-id}'
+      operationId: getEventHandlers
+      tags:
+        - Handlers
+      parameters:
+        - name: event-id
+          required: true
+          in: path
+          schema:
+            $ref: '#/components/schemas/EventId'
+      responses:
+        '200':
+          description: items found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Handler'
+        '401':
+          description: Unauthorized. please login
+        '403':
+          description: Forbidden. Permission for Handlers is required.
+        '404':
+          description: Not Found. Invalid event-id
+    put:
+      summary: 'set handler list for {event-id}'
+      operationId: setEventHandlers
+      tags:
+        - Handlers
+      parameters:
+        - name: event-id
+          required: true
+          in: path
+          schema:
+            $ref: '#/components/schemas/EventId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Handler'
+      responses:
+        '200':
+          description: items changed
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Handler'
+        '401':
+          description: Unauthorized. please login
+        '403':
+          description: Forbidden. Permission for Handlers is required.
+        '404':
+          description: Not Found. Invalid event-id
+    post:
+      summary: 'add a Handler for {event-id}'
+      operationId: addEventHandler
+      tags:
+        - Handlers
+      parameters:
+        - name: event-id
+          required: true
+          in: path
+          schema:
+            $ref: '#/components/schemas/EventId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Handler'
+      responses:
+        '200':
+          description: Handler added
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Handler'
-        "401":
+        '401':
           description: Unauthorized. please login
-        "403":
-          description: Forbidden. Permission Handler is required.
-        "404":
-          description: Handler for side not configured
-      x-openapi-router-controller: swagger_server.controllers.handler_controller
-    post:
-      tags:
-      - Handler
-      summary: configures a Handler for side {sideId}
+        '403':
+          description: Forbidden. Permission for Handlers is required.
+        '404':
+          description: ' Not Found. Invalid event-id'
+    delete:
+      summary: 'delete all Handlers for {event-id}'
+      operationId: deleteEventHandlers
       description: Adds a Handler to a side
-      operationId: add_side_handler
-      parameters:
-      - name: sideId
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          $ref: '#/components/schemas/sideId'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Handler'
-      responses:
-        "201":
-          description: item created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Handler'
-        "400":
-          description: invalid input, object invalid
-        "401":
-          description: Unauthorized. please login
-        "403":
-          description: Forbidden. Permission "Handler" is required.
-      x-openapi-router-controller: swagger_server.controllers.handler_controller
-  /handler/onchange:
-    get:
       tags:
-      - Handler
-      summary: get the current Handler for changes of CubeState
-      operationId: handler_onchange_get
+        - Handlers
+      parameters:
+        - name: event-id
+          required: true
+          in: path
+          schema:
+            $ref: '#/components/schemas/EventId'
       responses:
-        "200":
+        '204':
+          description: items deleted
+        '401':
+          description: Unauthorized. please login
+        '403':
+          description: Forbidden. Permission "Handler" is required.
+        '404':
+          description: Not Found. Invalid event-id
+  '/events/{event-id}/handlers/{handlerId}':
+    get:
+      summary: 'get the {handlerId}-th Handler for {event-id}'
+      operationId: getEventHandler
+      tags:
+        - Handlers
+      parameters:
+        - name: event-id
+          required: true
+          in: path
+          schema:
+            $ref: '#/components/schemas/EventId'
+        - name: handlerId
+          required: true
+          in: path
+          schema:
+            type: integer
+            minimum: 0
+      responses:
+        '200':
           description: item found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Handler'
-        "401":
+        '401':
           description: Unauthorized. please login
-        "403":
-          description: Forbidden. Permission "Handler" is required.
-        "404":
-          description: not found
-      x-openapi-router-controller: swagger_server.controllers.handler_controller
-    post:
+        '403':
+          description: Forbidden. Permission for Handlers is required.
+        '404':
+          description: Handler Not Found. Invalid event-id or HandlerId
+    put:
+      summary: 'set the {handlerId}-th Handler for {event-id}'
+      operationId: setEventHandler
       tags:
-      - Handler
-      summary: configures a Handler for changes of CubeState
-      description: Add a Handler to whenever the CubeState changes i.e. it is tilted
-      operationId: handler_onchange_post
+        - Handlers
+      parameters:
+        - name: event-id
+          required: true
+          in: path
+          schema:
+            $ref: '#/components/schemas/EventId'
+        - name: handlerId
+          required: true
+          in: path
+          schema:
+            type: integer
+            minimum: 0
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Handler'
       responses:
-        "201":
-          description: item created
+        '200':
+          description: item changed
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Handler'
-        "400":
-          description: invalid input, object invalid
-        "401":
+        '401':
           description: Unauthorized. please login
-        "403":
+        '403':
+          description: Forbidden. Permission for Handlers is required.
+        '404':
+          description: Handler Not Found. Invalid event-id or HandlerId
+    delete:
+      summary: 'delete the {handlerId}-th Handler for {event-id}'
+      operationId: deleteEventHandler
+      description: Adds a Handler to a side
+      tags:
+        - Handlers
+      parameters:
+        - name: event-id
+          required: true
+          in: path
+          schema:
+            $ref: '#/components/schemas/EventId'
+        - name: handlerId
+          required: true
+          in: path
+          schema:
+            type: integer
+            minimum: 0
+      responses:
+        '204':
+          description: item deleted
+        '400':
+          description: Handler Not Found. Invalid event-id or HandlerId
+        '401':
+          description: Unauthorized. please login
+        '403':
           description: Forbidden. Permission "Handler" is required.
-      x-openapi-router-controller: swagger_server.controllers.handler_controller
-  /System/config/wifi:
+
+  /system/config:
     get:
       tags:
-      - System
-      summary: get configured wifi(s)
-      description: returns wifi
-      operationId: system_config_wifi_get
+        - System
+      summary: get the whole configuration as one json object.
+      description: d get the whole configuration as one file deploy it on any other cube to create an exact copy.
       responses:
-        "200":
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CubeConfig'
+    put:
+      tags:
+        - System
+      summary: upload a whole preconfigured configuration to the cube.
+      description: Upload a whole preconfigured configuration to the cube. overriding ALL DATA, even username and password. use this to duplicate a key or to apply a data backup.
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CubeConfig'
+
+  /users/{user-id}:
+    get:
+      summary: 'get a user'
+      operationId: getUser
+      tags:
+        - Users
+      parameters:
+        - name: user-id
+          required: true
+          in: path
+          schema:
+            $ref: '#/components/schemas/Id'
+      responses:
+        '200':
+          description: item found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized. please login
+        '403':
+          description: Forbidden. Permission for Users is required.
+        '404':
+          description: Handler Not Found. Invalid user-id
+    put:
+      summary: 'change a user'
+      operationId: putUser
+      tags:
+        - Users
+      parameters:
+        - name: user-id
+          required: true
+          in: path
+          schema:
+            $ref: '#/components/schemas/Id'
+      requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: item updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized. please login
+        '403':
+          description: Forbidden. Permission for Users is required.
+        '404':
+          description: Handler Not Found. Invalid user-id
+    delete:
+      summary: 'delete a user'
+      operationId: deleteUser
+      tags:
+        - Users
+      parameters:
+        - name: user-id
+          required: true
+          in: path
+          schema:
+            $ref: '#/components/schemas/Id'
+      responses:
+        '204':
+          description: item deleted
+        '401':
+          description: Unauthorized. please login
+        '403':
+          description: Forbidden. Permission for Users is required.
+        '404':
+          description: Handler Not Found. Invalid user-id
+  /users:
+    post:
+      summary: 'add a user'
+      operationId: postUser
+      tags:
+        - Users
+      requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: item updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized. please login
+        '403':
+          description: Forbidden. Permission for Users is required.
+        '404':
+          description: Handler Not Found. Invalid user-id
+    get:
+      summary: 'get a list of all user'
+      operationId: getUsers
+      tags:
+        - Users
+      responses:
+        '200':
+          description: items found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized. please login
+        '403':
+          description: Forbidden. Permission for Users is required.
+  /system/config/accesspoint:
+    get:
+      summary: 'get the Access Point configuration'
+      operationId: getAccessPoint
+      tags:
+        - System
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Network'
+        '401':
+          description: Unauthorized. please login
+        '403':
+          description: Forbidden. Permission "System" is required.
+    put:
+      tags:
+        - System
+      summary: set Access Point Configuration
+      description: returns current configuration if accepted
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Network'
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Network'
+        '401':
+          description: Unauthorized. please login
+        '403':
+          description: Forbidden. Permission System is required.ig"
+  
+  /system/config/wifis:
+    get:
+      tags:
+        - System
+      summary: get list of configured wifis
+      description: returns wifi
+      responses:
+        '200':
           description: ok
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Wifi'
-      x-openapi-router-controller: swagger_server.controllers.system_controller
     post:
       tags:
-      - System
+        - System
       summary: return configured wifi
       description: returns current configuration if accepted
-      operationId: system_config_wifi_post
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Wifi'
       responses:
-        "201":
+        '201':
           description: item created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Wifi'
-        "401":
+        '401':
           description: Unauthorized. please login
-        "403":
-          description: Forbidden. Permission System is required.ig"
-      x-openapi-router-controller: swagger_server.controllers.system_controller
-  /System/reboot:
+        '403':
+          description: Forbidden. Permission System is required."
+
+  /system/config/wifis/{wifi-id}:
+    get:
+      summary: 'get the wifi with id {wifi-id}'
+      operationId: getWifi
+      tags:
+        - System
+      parameters:
+        - name: wifi-id
+          required: true
+          in: path
+          schema:
+            type: integer
+            minimum: 0
+      responses:
+        '204':
+          description: OK item
+        '404':
+          description: Wifi Not Found. Invalid wifi-id
+        '401':
+          description: Unauthorized. please login
+        '403':
+          description: Forbidden. Permission "System" is required.
+    delete:
+      summary: 'delete the wifi with id {wifi-id}'
+      operationId: deleteWifi
+      tags:
+        - System
+      parameters:
+        - name: wifi-id
+          required: true
+          in: path
+          schema:
+            type: integer
+            minimum: 0
+      responses:
+        '204':
+          description: item deleted
+        '400':
+          description: Wifi Not Found. Invalid wifi-id
+        '401':
+          description: Unauthorized. please login
+        '403':
+          description: Forbidden. Permission "System" is required.
+  
+  /system/reboot:
     post:
       tags:
-      - System
-      summary: reboots the System
-      description: returns current configuration if accepted
-      operationId: system_reboot_post
+        - System
+      summary: schedules a reboot of the System
+      description: returns a reboot job object, with uri where the client can check if the reboot is completed. current configuration and then starts reboot.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reboot-in-sec:
+                  type: integer
+                  description: delay of reboot in seconds
+                  example: "0"
+                  default: 0
       responses:
-        "204":
+        '202':
           description: device reboots now
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SystemConfig'
-        "401":
+                type: object
+                properties:
+                  job:
+                    $ref: '#/components/schemas/Job'
+                  systemConfig:
+                    $ref: '#/components/schemas/SystemConfig'
+          links:
+            getRebootStatus:   # <---- arbitrary name for the link
+              operationId: getJobState
+              parameters:
+                jobId: '$response.body#/job/id'
+              description: >-
+                The id of the returned job can be used as the job-Id parameter in GET
+                /system/jobs/{job-id}/state
+        '401':
           description: Unauthorized. Please login
-        "403":
+        '403':
           description: Forbidden. Permission System is required.
-        "500":
+        '500':
           description: unable to reboot.
-      x-openapi-router-controller: swagger_server.controllers.system_controller
+    
 components:
+  securitySchemes:
+     basicAuth:
+      type: http
+      scheme: basic
   schemas:
-    sideId:
-      maximum: 6
-      minimum: 1
-      type: integer
-      format: int8
-      example: 1
-      default: 1
-    CubeState:
+    Id:
+      type: string
+      readOnly: true
+      example: "123"
+      description: Ids are always asigned by the system and therefore cannot be modified.
+    Ip:
+      type: string
+      example: 192.168.0.10
+      oneOf:
+        - format: ipv4
+        - format: ipv6
+      description: an IPv4 or IPv6 IP address.
+    EventId:
+      description: >-
+        Each event that Smart-Cube can detect is identified by an EventId. Those are:
+        <li> change is detected, when cube is tilted.</li> 
+        <li> shaking is detected when the cube is shaken for *changedelay* seconds.</li>
+        <li>*side-N* is detected when the N-th side is facing up</li>
+      type: string
+      example: change
+      enum:
+        - side-1
+        - side-2
+        - side-3
+        - side-4
+        - side-5
+        - side-6
+        - change
+        - shaking
+    Password:
+      type: string
+      format: password
+      description: passwords are write only and never returned in a response
+      example: pa$$word-swordfish
+      writeOnly: true
+    User:
+      description: User of the system
       type: object
       properties:
-        sideId:
-          $ref: '#/components/schemas/sideId'
-        lastChange:
+        id:
+          $ref: '#/components/schemas/Id'
+        username:
+          type: string
+        password:
+           $ref: '#/components/schemas/Password'
+    CubeConfig:
+      description: The configuration of the system as a whole.
+      type: object
+      properties:
+        wifis:
+          type: array
+          items:
+            $ref: '#/components/schemas/Wifi'
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        event-handlers:
+          type: array
+          items:
+            type: object
+            properties:
+              event-id:
+                $ref: '#/components/schemas/EventId'
+              handler:  
+                $ref: '#/components/schemas/Password'
+          
+            
+    CubeState:
+      description: >-
+        contains all sensor and event data.  *activeEvent* is the last event that was detected. *startOfEvent* is the timestamp when *activeEvent* started
+      type: object
+      properties:
+        active-event:
+          $ref: '#/components/schemas/EventId'
+        event-start-time:
           type: string
           format: date-time
-          example: 2017-07-21T17:32:28Z
-      description: provides the current side up on the cube as well as time since
-        when it is in that State.
-      example:
-        sideId: 1
-        lastChange: 2017-07-21T17:32:28Z
+          example: '2017-07-21T17:32:28Z'
     SystemState:
+      description: information about the running hardware such memory and storage utilization, networking details, battery status
       type: object
       properties:
-        timeRemaining:
+        battery-remaining-time:
+          description: >-
+            estimated remaining time of operation in seconds until devices runs
+            out of power. -1 means infintely
           type: integer
-          description: estimated remaining time of operation in seconds. -1 means
-            infintely
           format: int64
           example: 60
-        timePassed:
+        battery-remaining-percentage:
+          description: >-
+            estimated percentage of the batteries remaining power.
           type: integer
-          description: time that has passed since device was switched on
           format: int64
-          example: 10000
-      description: provides all relevant and irrelevant meta data about the hardware
-      example:
-        timePassed: 10000
-        timeRemaining: 60
-    SystemConfig:
-      properties:
-        wifiSSID:
+          example: 60
+        last-reboot:
+          description: timestamp when device was switched on the last time.
+          readOnly: true
           type: string
-          description: the SSID of the connected Wifi
-          example: GLUBBE-Network
-        changeDelay:
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        last-charge:
+          description: timestamp when device was charged the last time.
+          readOnly: true
+          type: string
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        ram:
+          $ref: '#/components/schemas/StorageMetrics'
+        flash:
+          $ref: '#/components/schemas/StorageMetrics'
+        
+        network:
+          $ref: '#/components/schemas/Network'
+    
+    StorageMetrics:
+      description: metrics of storage utilization in kb. can be RAM or flash storage.
+      type: object
+      properties:
+        free-kb:
+          type: number
+          format: float
+          readOnly: true
+          example: 13.10
+        allocated-kb:
+          type: number
+          format: float
+          readOnly: true
+          example: 28.90
+        total-kb:       
+          type: number
+          format: float
+          readOnly: true
+          example: 42.00
+
+    Network:
+      description: describes a network setup including wifi and SSID to connect to Ip address, etc
+      type: object
+      properties:
+        wifi:
+          $ref: '#/components/schemas/Wifi'
+        ip-address:
+          $ref: '#/components/schemas/Ip'
+        network-mask:
+          $ref: '#/components/schemas/Ip'
+        gateway:
+          $ref: '#/components/schemas/Ip'
+        dns:
+          $ref: '#/components/schemas/Ip'
+
+          
+    SystemConfig:
+      description: provides all relevant and irrelevant meta data about the hardware
+      properties:
+        wifi-mode:
+          type: string
+          default: dynamic
+          example: accesspoint
+          description: >-
+            *accesspoint* forces the cube to always start in accesspoint mode.
+            *dynamic mode* enables cube connecting to a known network from
+            /system/config/wifi, it will launch an accesspoint, if no network is
+            found or if the cube is woken into config mode, which happens when
+            shaken for 5 seconds.
+          enum:
+            - accesspoint
+            - dynamic
+        change-delay:
           type: integer
-          description: when the cube is tilted, sensors indicate many CubeState changes.
-            to mittigate the detection of those unwanted events after the cube is
-            tilted it must stand still for milliseconds in changeDelay
+          description: >-
+            when the cube is tilted, sensors indicate several CubeState changes.
+            To mittigate the detection of those unwanted events the cube must
+            stand still for *changeDelay* milliseconds before a the new state
+            will be detected
           example: 3000
           default: 3000
-      description: provides all relevant and irrelevant meta data about the hardware
-      example:
-        wifiSSID: GLUBBE-Network
-        changeDelay: 3000
+    
     Wifi:
+      description: ssid and IP of networks known to the cube. The password can be set but not retrieved. if IP address is not set or not available, Smart-Cube will get one assigned by the networks DHCP server.
+      required:
+        - ssid
+        - id
       properties:
+        id:
+          $ref: '#/components/schemas/Id'
         ssid:
-          type: string
           description: the SSID of the Wifi to connect to
+          type: string
           example: Fsociety-SSID
         password:
-          type: string
-          description: the password of the wifi
-          writeOnly: true
-          example: pa$$word-swordfish
-      description: provides all relevant and irrelevant meta data about the hardware
-      example:
-        password: pa$$word-swordfish
-        ssid: Fsociety-SSID
+         $ref: '#/components/schemas/Password'
+        prefered-ip-address:
+          $ref: '#/components/schemas/Ip'
     Handler:
-      required:
-      - request
+      description: configures a HttpRequest and the expected response from that request.
       type: object
+      required:
+        - request
+        - id
       properties:
+        id:
+          type: string
+          readOnly: true
+          example: 1
         request:
-          $ref: '#/components/schemas/httpRequest'
-        expectedResponse:
+          $ref: '#/components/schemas/HttpRequest'
+        expected-response-code:
+          description: if not set, any http response code <400 is considered as success.
           type: integer
           example: 201
-          default: 200
-      description: configures a httpRequest and the expected response from that Request
-        for the Handler to work as expected.
-      example:
-        request:
-          headers:
-            Authorization: Basic NzQwYzefIzZjhjYTEwMadadasd
-            accept: application/json
-          method: POST
-          payload: sample body as string
-          uri: http://my-remote-service.com/webhook-to-trigger
-        expectedResponse: 201
-    httpRequest:
-      required:
-      - uri
+    HttpRequest:
       type: object
+      required:
+        - uri
       properties:
         uri:
           type: string
           format: uri
-          example: http://my-remote-service.com/webhook-to-trigger
+          example: 'http://my-remote-service.com/webhook-to-trigger'
         method:
           type: string
-          example: POST
           default: GET
+          example: POST
           enum:
-          - GET
-          - POST
-          - PUT
-          - DELETE
-          - HEAD
-          - PATCH
-          - OPTIONS
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - HEAD
+            - PATCH
+            - OPTIONS
         headers:
           type: object
           additionalProperties:
@@ -359,22 +916,46 @@ components:
         payload:
           type: string
           example: sample body as string
-      example:
-        headers:
-          Authorization: Basic NzQwYzefIzZjhjYTEwMadadasd
-          accept: application/json
-        method: POST
-        payload: sample body as string
-        uri: http://my-remote-service.com/webhook-to-trigger
-  securitySchemes:
-    oAuthSample:
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: https://accounts.google.com/o/oauth2/v2/auth
-          scopes:
-            read_pets: read pets in your account
-            write_pets: modify pets in your account
-      x-tokenInfoFunc: swagger_server.controllers.authorization_controller.check_oAuthSample
-      x-scopeValidateFunc: swagger_server.controllers.authorization_controller.validate_scope_oAuthSample
-
+    JobState:
+      type: string
+      default: SCHEDULED
+      readOnly: true
+      enum:
+        - SCHEDULED
+        - STARTED
+        - SUCCEEDED
+        - ABORTED
+        - FAILED
+    Job:
+      type: object
+      required:
+        - id
+        - uri
+        - state
+        - scheduledTime
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        uri:
+          readOnly: true
+          type: string
+          format: uri
+          description: the callback URI where to check for task completion 
+          example: '/api/v1/job/123/state'
+        state:
+          $ref: '#/components/schemas/JobState'
+        scheduled-time : 
+          readOnly: true
+          type: string
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        start-time : 
+          readOnly: true
+          type: string
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        end-time :
+          readOnly: true
+          type: string
+          format: date-time
+          example: '2017-07-21T17:32:28Z'

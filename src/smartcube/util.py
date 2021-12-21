@@ -1,4 +1,5 @@
 import logging
+# TODO #20: extract deserializer to be more readable on imports.
 
 log = logging.Logger(__name__)
 

@@ -1,8 +1,9 @@
 {
     "schema": 2,
-    "known_networks": [{
-            "ssid": "GLUBBE",
-            "password": "GLUBBE0619",
+    "known_networks": [
+        {
+            "ssid": "GLUBBE-2GHZ",
+            "password": "Glubbe0619",
             "enables_webrepl": false
         },
         {

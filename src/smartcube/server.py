@@ -1,8 +1,14 @@
-from tinyweb.server import webserver, HTTPException
-from smartcube.hardware.board import Board
-from smartcube.models import Handler, Wifi, Model
 import logging
 import ujson as json
+from tinyweb.server import webserver
+from tinyweb.server import HTTPException
+
+from smartcube.hardware.board import Board
+from smartcube.models.handler import Handler
+from smartcube.models.wifi import Wifi
+from smartcube.models.user import User
+from smartcube.models.base_model import Model
+
 
 log = logging.getLogger(__name__)
 
@@ -22,6 +28,7 @@ def Server(board: Board) -> webserver:
     # JS files.
     # Since ESP8266 is low memory platform - it totally make sense to
     # pre-gzip all large files (>1k) and then send gzipped version
+
     @app.route("/js/<fn>")
     async def files_js(req, resp, fn):
         await resp.send_file(
@@ -47,6 +54,7 @@ def Server(board: Board) -> webserver:
         await resp.send_file("static/images/{}".format(fn), content_type="image/jpeg")
 
     # RESTAPI: System status
+
     class Status:
         def get(self, data):
             return {
@@ -82,6 +90,45 @@ def Server(board: Board) -> webserver:
             board.Pin(pin).value(val)
             return {"message": "changed", "value": val}
 
+    class APIViewParametrized:
+        """
+        Convenience class for creating a restfull router vie tinyweb
+
+        """
+        class Meta:
+            model = Model
+            # TODO: #6 implement read and write only field specification
+            # DRF:  extra_kwargs = {'password': {'write_only': True}}
+            # DRF:  extra_kwargs = {'password': {'read_only': True}}
+
+        resource_name = '{}s'.format(Meta.model.__name__.lower())
+
+        @classmethod
+        def get(cls, data, id):
+            """
+            :rtype: return Wifi as json
+            """
+            try:
+                return Model.JSONEncodeModel(cls.Meta.model.get_by_id(id))
+            except KeyError:
+                raise HTTPException(404)
+
+        @classmethod
+        def put(cls, data, id):
+            obj = cls.Meta.model.from_dict(data)
+            obj.save(id)
+
+            return obj.JSONEncodeModel(obj)
+
+        @classmethod
+        def delete(cls, data, id):
+            log.debug("deleting object with key {}".format(id))
+            try:
+                cls.Meta.model._delete(id)
+                return id
+            except KeyError:
+                raise HTTPException(404)
+
     class APIView:
         """
         Convenience class for creating a restfull router vie tinyweb
@@ -93,17 +140,11 @@ def Server(board: Board) -> webserver:
             # DRF:  extra_kwargs = {'password': {'write_only': True}}
             # DRF:  extra_kwargs = {'password': {'read_only': True}}
 
-        resource_name = Meta.model.__name__.lower()
+        resource_name = '{}s'.format(Meta.model.__name__.lower())
 
         @classmethod
-        def get(cls, data, id):
-            """
-            :rtype: return Wifi as json
-            """
-            return Model.JSONEncodeModel(cls.Meta.model.get_by_id(id))
-
-        @classmethod
-        def list(cls, data):
+        def get(cls, data):
+            # TODO: #24 stream data rather than gathering all objects. because this will fill up memory to quickly
             return json.dumps(Model.JSONEncodeModelList(cls.Meta.model.get_all()))
 
         @classmethod
@@ -112,80 +153,55 @@ def Server(board: Board) -> webserver:
             obj.save()
             return obj.JSONEncodeModel(obj)
 
-        @classmethod
-        def put(cls, data, id):
-            obj = cls.Meta.model.from_dict(data)
-            obj.save(id)
-            return obj.JSONEncodeModel(obj)
+    class HandlerView(APIView):
+        class Meta:
+            model = Handler
 
         @classmethod
-        def delete(cls, data, id):
-            cls.Meta.model._delete(id)
-
-        @classmethod
-        def add_APIView_router(cls, app: webserver, path: str):
-            """
-            generates router analogue to django restframeworks viewset routers
-            <path>/<classname w/o View suffix> supports get and post
-            <path>/<classname w/o View suffix>/<id> supports get, put and delete
-
-            Args:
-                app (webserver): the tinyweb server to add routes to
-                path (str): base bath for the router
-            """
-            class tmp_list:
-                def get(self, data):
-                    return cls.list(data)
-
-                def post(self, data):
-                    return cls.post(data)
-
-            class tmp_id:
-                def get(self, data, id):
-                    try:
-                        return cls.get(data, id)
-                    except KeyError:
-                        raise HTTPException(404)
-
-                def put(self, data, id):
-                    try:
-                        return cls.put(data, id)
-                    except KeyError:
-                        raise HTTPException(404)
-
-                def delete(self, data, id):
-                    try:
-                        cls.delete(data, id)
-                    except KeyError:
-                        raise HTTPException(404)
-
-            list_string = "{}/{}".format(path, cls.resource_name)
-            log.debug("adding route {}".format(list_string))
-            app.add_resource(
-                tmp_list, "{}/{}".format(path, cls.resource_name))
-
-            res_string = "{}/{}/<id>".format(path,
-                                             cls.resource_name)
-            log.debug("adding route {}".format(res_string))
-            app.add_resource(
-                tmp_id, "{}/{}/<id>".format(path, cls.resource_name))
+        def get(cls, data):
+            return json.dumps(Model.JSONEncodeModelList(cls.Meta.model.get_all(data.get("event-id"))))
 
     class WifiView(APIView):
         class Meta:
             model = Wifi
 
-    class HandlerView(APIView):
+    class WifiViewParametrized(APIViewParametrized):
+        class Meta:
+            model = Wifi
+
+    class HandlerViewParametrized(APIViewParametrized):
         class Meta:
             model = Handler
-            # TODO: #9 find a better path for all handlers
 
-        resource_name = "{}/side".format(Meta.model.__name__.lower())
+    class UserView(APIView):
+        class Meta:
+            model = User
+
+    class UserViewParametrized(APIViewParametrized):
+        class Meta:
+            model = User
 
     app.add_resource(Status, "/api/v1/status")
     app.add_resource(GPIOList, "/api/v1/gpio")
     app.add_resource(GPIO, "/api/v1/gpio/<pin>")
-    WifiView.add_APIView_router(app, "/api/v1/system/config")
-    HandlerView.add_APIView_router(app, "/api/v1")
+
+    app.add_resource(HandlerViewParametrized, "/api/v1/handlers/<id>")
+    app.add_resource(HandlerView, "/api/v1/handlers")
+
+    # /cube/state
+    # /system/state
+    # /system/jobs/
+    # /system/jobs/id
+    # /system/jobs/id/state
+
+    # /system/config
+    # /system/config/accespoint
+    # /system/reboot
+    # TODO: #17 update tiny web for any amount of params
+    app.add_resource(WifiViewParametrized, "/api/v1/system/config/wifis/<id>")
+    app.add_resource(WifiView, "/api/v1/system/config/wifis")
+    app.add_resource(UserView, "/api/v1/users")
+    app.add_resource(UserViewParametrized, "/api/v1/users/<Userid>")
     log.debug("end configure restapi")
     log.debug("end configure webserver")
     return app

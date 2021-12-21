@@ -7,3 +7,6 @@
 [submodule "misc/micropython"]
 	path = misc/micropython
 	url = https://github.com/micropython/micropython.git
+[submodule "misc/micropython-stubs"]
+	path = misc/micropython-stubs
+	url = https://github.com/Josverl/micropython-stubs.git
