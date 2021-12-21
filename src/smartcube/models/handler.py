@@ -1,7 +1,7 @@
 import logging
-from urequests import request
 import ujson as json
 import gc
+import uasyncio as asyncio
 
 from smartcube import util
 from smartcube.models.base_model import Model, database_operation
@@ -11,8 +11,9 @@ log = logging.getLogger(__name__)
 
 
 class Handler(Model):
-
-    def __init__(self, id: str = None, event_id: str = None, request: HttpRequest = None, expected_response_code: int = None):  # noqa: E501
+    def __init__(
+        self, id: str = None, event_id: str = None, request: HttpRequest = None, expected_response_code: int = None
+    ):  # noqa: E501
         """Handler - a model defined in Swagger
 
         :param id: The id of this Handler.  # noqa: E501
@@ -24,18 +25,13 @@ class Handler(Model):
         :param expected_response_code: The expected_response_code of this Handler.  # noqa: E501
         :type expected_response_code: int
         """
-        self.swagger_types = {
-            'id': str,
-            'event_id': str,
-            'request': HttpRequest,
-            'expected_response_code': int
-        }
+        self.swagger_types = {"id": str, "event_id": str, "request": HttpRequest, "expected_response_code": int}
 
         self.attribute_map = {
-            'id': 'id',
-            'event_id': 'event-id',
-            'request': 'request',
-            'expected_response_code': 'expected-response-code'
+            "id": "id",
+            "event_id": "event-id",
+            "request": "request",
+            "expected_response_code": "expected-response-code",
         }
         self._id = id
         self._event_id = event_id
@@ -43,7 +39,7 @@ class Handler(Model):
         self._expected_response_code = expected_response_code
 
     @classmethod
-    def from_dict(cls, dikt) -> 'Handler':
+    def from_dict(cls, dikt) -> "Handler":
         """Returns the dict as a model
 
         :param dikt: A dict.
@@ -144,26 +140,23 @@ class Handler(Model):
         self._expected_response_code = expected_response_code
 
     def run(self) -> bool:
-        log.debug("free memory: %s", gc.mem_free())
-        log.info("runing http request handler: {}".format(
-            self._request.__dict__))
-        log.debug("free memory: %s", gc.mem_free())
+        log.info("running http request handler: {}".format(self._request.__dict__))
+
         gc.collect()
-        response = request(method=self._request.method,
-                           url=self._request.uri,
-                           data=self._request.payload,
-                           headers=self._request.headers)
+        log.debug("free memory before stopping async loop: %s", gc.mem_free())
+        asyncio.get_event_loop().stop()
+        gc.collect()
+        log.debug("free memory after stopping async loop: %s", gc.mem_free())
+
+        response = self._request.execute()
+        gc.collect()
         log.debug("free memory: %s", gc.mem_free())
         try:
             if self._expected_response_code is not None:
                 assert response.status_code == self._expected_response_code
             else:
                 assert response.status_code < 400
-            log.info(
-                "Handler ran succesfully. Response was {}".format(
-                    response.__dict__
-                )
-            )
+            log.info("Handler ran succesfully. Response was {}".format(response.__dict__))
         except AssertionError:
             log.error(
                 "http request %s returned %i, but expected %i",
@@ -172,7 +165,6 @@ class Handler(Model):
                 self._expected_response,
             )
 
-    #TODO:
     @classmethod
     @database_operation
     def get_all(cls, event_id=None):

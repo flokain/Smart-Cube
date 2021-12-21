@@ -13,10 +13,9 @@ log = logging.getLogger(__name__)
 
 
 class Cube:
-
     async def detectAndHandleSensorChange(self):
-        """ detect change of the sensor, read the current side up
-            and trigger the coresponding handler
+        """detect change of the sensor, read the current side up
+        and trigger the coresponding handler
         """
         # TODO: #21 refactor to sth like publisher subscriber pattern. not necessary because only one subscriber
         while True:
@@ -30,25 +29,23 @@ class Cube:
             await asyncio.sleep(1)
 
     def __init__(self):
-        """ sets up all components which puts the following
-            functions in the asyncio event loop
-            1. sensor triggered handling
-            2. network detection and login
-            3. starting WebServer
+        """sets up all components which puts the following
+        functions in the asyncio event loop
+        1. sensor triggered handling
+        2. network detection and login
+        3. starting WebServer
         """
-        self.board=Board(platform)
-        self.server=Server(self.board)
-        self.sensor=BallSwitchSensor(
-
-        )
+        self.board = Board(platform)
+        self.server = Server(self.board)
+        self.sensor = BallSwitchSensor()
 
         asyncio.get_event_loop().create_task(self.detectAndHandleSensorChange())
 
-    def run(self):
+    def run_server(self):
         log.debug("start webserver")
         self.server.run(host="0.0.0.0", port=80)
 
 
 if __name__ == "__main__":
-    c=Cube()
-    c.run()
+    c = Cube()
+    c.run_server()

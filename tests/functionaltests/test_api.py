@@ -1,86 +1,70 @@
 import requests
 import unittest
 
-host = "192.168.0.139"
+host = "10.0.0.17"
 headers = {"Content-Type": "application/json"}
 
 
 def test_gpio_set_pin():
-    response = requests.request(
-        "PUT", f"http://{host}/api/v1/gpio/2", headers=headers, json={"value": True}
-    )
+    response = requests.request("PUT", f"http://{host}/api/v1/gpio/2", headers=headers, json={"value": True})
     assert response.ok
     assert response.json() == {"message": "changed", "value": 1}
 
 
-class Resourcetesting():
-
+class Resourcetesting:
     def setUp(self):
         self.payload = None
         self.response = None
         self.path = None
 
     def test_get_resource(self):
-        response = requests.request(
-            "GET", f"{self.path}/1", headers=headers
-        )
+        response = requests.request("GET", f"{self.path}/1", headers=headers)
         assert response.ok
-    #TODO test with generating function.
+
+    # TODO test with generating function.
     def test_get_resources(self):
-        response = requests.request(
-            "GET", f"{self.path}", headers=headers
-        )
+        response = requests.request("GET", f"{self.path}", headers=headers)
         assert response.ok
 
     def test_post_resource(self):
-        response = requests.request(
-            "POST", f"{self.path}", headers=headers, json=self.payload
-        )
+        response = requests.request("POST", f"{self.path}", headers=headers, json=self.payload)
 
         assert response.ok
 
     def test_put_resource(self):
-        response = requests.request(
-            "PUT", f"{self.path}/23", headers=headers, json=self.payload
-        )
+        response = requests.request("PUT", f"{self.path}/23", headers=headers, json=self.payload)
 
         assert response.ok
         assert response.json() == self.response
 
     def test_post_and_get_and_delete_resource(self):
-        post_response = requests.request(
-            "POST", f"{self.path}", headers=headers, json=self.payload
-        )
+        post_response = requests.request("POST", f"{self.path}", headers=headers, json=self.payload)
         id = int(post_response.json()["id"])
         assert post_response.ok
 
-        get_response = requests.request(
-            "GET", f"{self.path}/{id}", headers=headers
-        )
+        get_response = requests.request("GET", f"{self.path}/{id}", headers=headers)
         assert get_response.ok
         assert get_response.content == post_response.content
 
         # TODO: #18 with postman this works. there must be a problem with the headers..
         # header  "Content-Type": "application/json" causes this to fail
-        delete_response = requests.request(
-            "DELETE", f"{self.path}/{id}"
-            )
+        delete_response = requests.request("DELETE", f"{self.path}/{id}")
         assert delete_response.ok
-        get_response = requests.request(
-            "GET", f"{self.path}/{id}", headers=headers
-        )
+        get_response = requests.request("GET", f"{self.path}/{id}", headers=headers)
+        assert get_response.status_code == 404
+
+    def test_delete_ressource(self):
+        delete_response = requests.request("DELETE", f"{self.path}/1")
+        assert delete_response.ok
+        get_response = requests.request("GET", f"{self.path}/1", headers=headers)
         assert get_response.status_code == 404
 
     def test_post_and_get_resource(self):
-        post_response = requests.request(
-            "POST", f"{self.path}", headers=headers, json=self.payload
-        )
+        post_response = requests.request("POST", f"{self.path}", headers=headers, json=self.payload)
         id = int(post_response.json()["id"])
         assert post_response.ok
 
-        get_response = requests.request(
-            "GET", f"{self.path}/{id}", headers=headers
-        )
+        get_response = requests.request("GET", f"{self.path}/{id}", headers=headers)
         assert get_response.ok
         assert get_response.content == post_response.content
 
@@ -88,33 +72,47 @@ class Resourcetesting():
 
 
 class SideHandlerTestCase(Resourcetesting, unittest.TestCase):
-
     def setUp(self):
         self.payload = {
             "event-id": "side-1",
             "request": {
-                "uri": "https://www.toggl.com/api/v8/time_entries/start",
+                "uri": "https://api.track.toggl.com/api/v8/time_entries/start",
                 "method": "POST",
                 "headers": {
                     "Authorization": "Basic NzQwYzIzZjhjYTEwMzQwMDY3Mjk5NTllMzNjYTg5ODY6YXBpX3Rva2Vu",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 },
-                "payload": "{ \"time_entry\":\n  { \"description\": \"triggered by smartcube\",\n \"tags\": [\"triggered by smartcube\"],\n    \"pid\":164777840,\n    \"created_with\":\"curl\"\n    }\n}"
+                "payload": '{ "time_entry":\n  { "description": "triggered by smartcube",\n "tags": ["triggered by smartcube"],\n    "pid":164777840,\n    "created_with":"curl"\n    }\n}',
             },
-            "expected-response-code": 200
+            "expected-response-code": 200,
+        }
+
+        self.payload_2 = {
+            "event-id": "side-3",
+            "request": {
+                "uri": "http://www.example.com",
+                "method": "POST",
+                "headers": {
+                    "Authorization": "Basic NzQwYzIzZjhjYTEwMzQwMDY3Mjk5NTllMzNjYTg5ODY6YXBpX3Rva2Vu",
+                    "Content-Type": "application/json",
+                },
+                "payload": '{ "time_entry":\n  { "description": "triggered by smartcube",\n "tags": ["triggered by smartcube"],\n    "pid":164777840,\n    "created_with":"curl"\n    }\n}',
+            },
+            "expected-response-code": 200,
         }
 
         self.response = dict(self.payload)
         self.response["id"] = 23
         self.path = f"http://{host}/api/v1/handlers"
 
+    def test_post_2nd_resource(self):
+        response = requests.request("POST", f"{self.path}", headers=headers, json=self.payload_2)
+        assert response.ok
+
 
 class WifiTestCase(Resourcetesting, unittest.TestCase):
     def setUp(self):
-        self.payload = {
-            "ssid": "test",
-            "password": "123"
-        }
+        self.payload = {"ssid": "test", "password": "123"}
         self.path = f"http://{host}/api/v1/system/config/wifis"
 
         self.response = dict(self.payload)
@@ -123,10 +121,7 @@ class WifiTestCase(Resourcetesting, unittest.TestCase):
 
 class UserTestCase(Resourcetesting, unittest.TestCase):
     def setUp(self):
-        self.payload = {
-            "username": "test",
-            "password": "123"
-        }
+        self.payload = {"username": "test", "password": "123"}
         self.response = dict(self.payload)
         self.response["id"] = 23
 
